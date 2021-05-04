@@ -12,12 +12,10 @@ router.post("/", async (req, res) => {
   let {userId} = req.body;
   let admin = await findAdmin(userId);
   if (!admin)
-    return res
-      .status(400)
-      .send({
-        property: "userId",
-        msg: "There is no admin with given email id or username",
-      });
+    return res.status(400).send({
+      property: "userId",
+      msg: "There is no admin with given email id or username",
+    });
 
   let resetToken = admin.generateResetToken();
   let encryptedResetToken = encrypt(resetToken);
