@@ -31,15 +31,15 @@ const adminSchema = new mongoose.Schema({
     type: Object,
     default: null,
   },
-  isAdmin:{
+  isAdmin: {
     type: Boolean,
     default: false,
   },
-  amountRecievedInMonths:{
+  amountRecievedInMonths: {
     type: Object,
     default: null,
   },
-  amountTransferredInMonths:{
+  amountTransferredInMonths: {
     type: Object,
     default: null,
   },
@@ -64,13 +64,11 @@ adminSchema.methods.generateResetToken = function () {
       email: this.email,
     },
     process.env.JWT_CHANGEPASSWORD_PRIVATE_KEY
-  ); 
+  );
   return token;
 };
 
 const Admin = mongoose.model("admin", adminSchema);
-
-
 
 let passwordValidation = [
   Joi.string().min(6).max(256).required(),
@@ -99,19 +97,17 @@ function validateAdmin(data) {
 }
 
 function validateAdminPassword(data) {
-  const schema = Joi.object(
-    {
-      oldpassword: Joi.string(),
-      password: passwordValidation[0],
-      confirmpassword: passwordValidation[1]
-    }
-  );
+  const schema = Joi.object({
+    oldpassword: Joi.string(),
+    password: passwordValidation[0],
+    confirmpassword: passwordValidation[1],
+  });
 
   return schema.validate(data);
 }
 
 exports.Admin = Admin;
-exports.validateAdmin = validateAdmin
+exports.validateAdmin = validateAdmin;
 exports.validateAdminPassword = validateAdminPassword;
 
 // {

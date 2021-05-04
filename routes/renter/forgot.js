@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const bcrypt=require("bcrypt")
+const bcrypt = require("bcrypt");
 const findRenter = require("../../utils/findRenter");
 const validate = require("../../middleware/validate");
 const {validateRenterPassword} = require("../../models/renter");
@@ -12,18 +12,23 @@ router.post("/", async (req, res) => {
   let {userId} = req.body;
   let renter = await findRenter(userId);
   if (!renter)
-    return res.status(400).send({property:"userId",msg:"There is no user with given email id or username"});
+    return res
+      .status(400)
+      .send({
+        property: "userId",
+        msg: "There is no user with given email id or username",
+      });
 
   let resetToken = renter.generateResetToken();
   let encryptedResetToken = encrypt(resetToken);
   renter.resettoken = encryptedResetToken;
   await renter.save();
   mailService(renter["email"], resetToken);
-  console.log(resetToken)
+  console.log(resetToken);
   res.send("Link Sent Successfully");
 });
 
-router.put("/:token",validate(validateRenterPassword), async (req, res) => {
+router.put("/:token", validate(validateRenterPassword), async (req, res) => {
   let token = req.params.token;
   let decoded;
 
@@ -34,11 +39,9 @@ router.put("/:token",validate(validateRenterPassword), async (req, res) => {
   }
 
   let renter = await findRenter(decoded.email);
-  if (!renter)
-    return res.status(400).send("Something went wrong. Try again");
+  if (!renter) return res.status(400).send("Something went wrong. Try again");
 
-  if (!renter.resettoken)
-    return res.status(400).send("This link is invalid");
+  if (!renter.resettoken) return res.status(400).send("This link is invalid");
 
   let decryptedResetToken = decrypt(renter.resettoken);
   if (token !== decryptedResetToken)

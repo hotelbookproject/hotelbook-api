@@ -1,13 +1,12 @@
-
-module.exports = function(err, req, res, next){
-  console.log("err",err)
+module.exports = function (err, req, res, next) {
+  console.log("err", err);
 
   // error
   // warn
   // info
   // verbose
-  // debug 
+  // debug
   // silly
 
-  res.status(500).send('Something failed.');
-}
+  res.status(500).send("Something failed.");
+};

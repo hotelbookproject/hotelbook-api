@@ -7,14 +7,19 @@ router.post("/", async (req, res) => {
   let {userId} = req.body;
   let admin = await findAdmin(userId);
 
-  if (!admin) return res.status(400).send({property:"userId",msg:"UserId and Password doesn't Match"});
+  if (!admin)
+    return res
+      .status(400)
+      .send({property: "userId", msg: "UserId and Password doesn't Match"});
 
   let validPassword = await bcrypt.compare(req.body.password, admin.password);
   if (!validPassword)
-    return res.status(400).send({property:"userId",msg:"UserId and Password doesn't Match"});
- 
+    return res
+      .status(400)
+      .send({property: "userId", msg: "UserId and Password doesn't Match"});
+
   const token = admin.generateAuthToken();
-  res.send(token); 
+  res.send(token);
 });
 
 module.exports = router;

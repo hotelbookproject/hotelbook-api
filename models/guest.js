@@ -33,11 +33,11 @@ const guestSchema = new mongoose.Schema({
   },
   bookedHotelDetails: {
     type: Array,
-    default: []
+    default: [],
   },
   previousBookedHotelDetails: {
     type: Array,
-    default: []
+    default: [],
   },
 });
 
@@ -92,13 +92,11 @@ function validateGuest(data) {
 }
 
 function validateGuestPassword(data) {
-  const schema = Joi.object(
-    {
-      oldpassword: Joi.string(),
-      password: passwordValidation[0],
-      confirmpassword: passwordValidation[1]
-    }
-  );
+  const schema = Joi.object({
+    oldpassword: Joi.string(),
+    password: passwordValidation[0],
+    confirmpassword: passwordValidation[1],
+  });
 
   return schema.validate(data);
 }

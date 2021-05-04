@@ -29,15 +29,15 @@ const transactionSchema = new mongoose.Schema({
     type: Object,
     default: null,
   },
-  isAdmin:{
+  isAdmin: {
     type: Boolean,
     default: false,
   },
-  amountRecievedInMonths:{
+  amountRecievedInMonths: {
     type: Object,
     default: null,
   },
-  amountTransferredInMonths:{
+  amountTransferredInMonths: {
     type: Object,
     default: null,
   },
@@ -64,4 +64,3 @@ function validateTransaction(data) {
 
 exports.Transaction = Transaction;
 exports.validateTransaction = validateTransaction;
-
