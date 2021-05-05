@@ -5,8 +5,9 @@ const validate = require("../../middleware/validate");
 const auth = require("../../middleware/auth");
 const bcrypt = require("bcrypt");
 const findGuest = require("../../utils/findGuest");
+const guestMiddleware = require("../../middleware/guest");
 
-router.post("/", [auth, validate(validateGuestPassword)], async (req, res) => {
+router.post("/", [auth,guestMiddleware, validate(validateGuestPassword)], async (req, res) => {
   const guest = await findGuest(req.user["username"]);
   let validPassword = await bcrypt.compare(req.body.oldpassword, user.password);
   if (!validPassword)
@@ -18,7 +19,6 @@ router.post("/", [auth, validate(validateGuestPassword)], async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
   guest.password = hashedPassword;
-  guest.passwordexpirytime = Date.now() + 604800000;
   await guest.save();
   const token = guest.generateAuthToken();
   res.send({token, msg: "Password changed successfully"});

@@ -1,45 +1,26 @@
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
-  email: {
-    type: String,
+  hotelId: {
+    type: ObjectId,
     required: true,
-    validate: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
   },
-  name: {
-    type: String,
+  guestId: {
+    type: ObjectId,
     required: true,
-    min: 2,
-    max: 50,
   },
-  username: {
-    type: String,
+  amount: {
+    type: Number,
     required: true,
-    min: 1,
-    max: 30,
-    validate: /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/,
+    min:0
   },
-  password: {
-    type: String,
-    required: true,
-    min: 6,
-    max: 1024,
+  isTransactionCompleted: {
+    type: Boolean,
+    default:false
   },
-  resettoken: {
-    type: Object,
-    default: null,
-  },
-  isAdmin: {
+  isCanceled: {
     type: Boolean,
     default: false,
-  },
-  amountRecievedInMonths: {
-    type: Object,
-    default: null,
-  },
-  amountTransferredInMonths: {
-    type: Object,
-    default: null,
   },
 });
 

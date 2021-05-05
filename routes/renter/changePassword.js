@@ -5,8 +5,9 @@ const validate = require("../../middleware/validate");
 const auth = require("../../middleware/auth");
 const bcrypt = require("bcrypt");
 const findRenter = require("../../utils/findRenter");
+const renterMiddleware = require("../../middleware/renterMiddleware");
 
-router.post("/", [auth, validate(validateRenterPassword)], async (req, res) => {
+router.post("/", [auth,renterMiddleware, validate(validateRenterPassword)], async (req, res) => {
   const renter = await findRenter(req.user["username"]);
   let validPassword = await bcrypt.compare(req.body.oldpassword, renter.password);
   if (!validPassword)
@@ -18,7 +19,6 @@ router.post("/", [auth, validate(validateRenterPassword)], async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
   renter.password = hashedPassword;
-  renter.passwordexpirytime = Date.now() + 604800000;
   await renter.save();
   const token = renter.generateAuthToken();
   res.send({token, msg: "Password changed successfully"});

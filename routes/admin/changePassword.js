@@ -1,12 +1,13 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const router = express.Router();
 const {validateAdminPassword} = require("../../models/admin");
 const validate = require("../../middleware/validate");
 const auth = require("../../middleware/auth");
-const bcrypt = require("bcrypt");
 const findAdmin = require("../../utils/findAdmin");
+const adminMiddleware = require("../../middleware/admin");
 
-router.post("/", [auth, validate(validateAdminPassword)], async (req, res) => {
+router.post("/", [auth,adminMiddleware, validate(validateAdminPassword)], async (req, res) => {
   const admin = await findAdmin(req.user["username"]);
   let validPassword = await bcrypt.compare(req.body.oldpassword, admin.password);
   if (!validPassword)

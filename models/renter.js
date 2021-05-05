@@ -37,12 +37,12 @@ const renterSchema = new mongoose.Schema({
   },
 });
 
-renterSchema.methods.generateAuthToken = function (changepassword) {
+renterSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
       _id: this._id,
       username: this.username,
-      changepassword,
+      isRenter: true
     },
     process.env.JWT_AUTH_PRIVATE_KEY
   );
@@ -54,6 +54,7 @@ renterSchema.methods.generateResetToken = function () {
     {
       _id: this._id,
       email: this.email,
+      isRenter: true
     },
     process.env.JWT_CHANGEPASSWORD_PRIVATE_KEY
   );

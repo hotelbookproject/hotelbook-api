@@ -27,8 +27,6 @@ const hotelSchema = new mongoose.Schema({
         message: "This is not a valid mobile number",
       },
       required: true,
-      min: 10,
-      max: 10,
     },
     address: {
       type: String,
@@ -46,24 +44,21 @@ const hotelSchema = new mongoose.Schema({
       type: String,
       validate: {
         validator: function (v) {
-          return v && !Object.is(Number(v), NaN);
+          return v && !Object.is(Number(v), NaN)&&v.length===6;
         },
         message: "This is not a valid postal code",
       },
       required: true,
-      min: 4,
-      max: 6,
     },
     parking: {
       type: String,
       required: true,
-      enum: ["no", "yes", "yes, paid"],
+      enum: ["No", "Yes, Free", "Yes, paid"],
     },
     breakfast: {
       type: String,
       required: true,
-      min: 2,
-      max: 10,
+      enum:["No", "Yes, Free", "Yes, Paid"]
     },
     facilities: {
       type: Array,
@@ -73,12 +68,16 @@ const hotelSchema = new mongoose.Schema({
         },
         message: "must require at least one facility",
       },
-      enum: [],
+      enum: [],//todo
     },
     extraBed: {
       type: String,
       required: true,
-      enum: ["no", "yes", "yes, paid"],
+      enum: ["No", "Yes"],
+    },
+    extraBedDetails:{
+      type:Array,
+      
     },
     mainPhoto: {
       type: URL,

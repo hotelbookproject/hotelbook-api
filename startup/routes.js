@@ -13,7 +13,6 @@ const renterSignin=require("../routes/renter/signin")
 const renterSignup=require("../routes/renter/signup")
 const renterForgot=require("../routes/renter/forgot")
 const renterChangePassword=require("../routes/renter/changePassword")
-// const dashboard=require("../routes/dashboard")
 
 module.exports = function (app) {
   app.use(express.json())
@@ -31,7 +30,5 @@ module.exports = function (app) {
   app.use("/api/renter/signup", renterSignup);
   app.use("/api/renter/forgot", renterForgot);
   app.use("/api/renter/changePassword", renterChangePassword);
-
-  // app.use("/api/dashboard", dashboard);
 };
  

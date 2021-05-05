@@ -45,12 +45,12 @@ const adminSchema = new mongoose.Schema({
   },
 });
 
-adminSchema.methods.generateAuthToken = function (changepassword) {
+adminSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
       _id: this._id,
       username: this.username,
-      changepassword,
+      isAdmin:this.isAdmin
     },
     process.env.JWT_AUTH_PRIVATE_KEY
   );
@@ -62,6 +62,7 @@ adminSchema.methods.generateResetToken = function () {
     {
       _id: this._id,
       email: this.email,
+      isAdmin: this.isAdmin
     },
     process.env.JWT_CHANGEPASSWORD_PRIVATE_KEY
   );

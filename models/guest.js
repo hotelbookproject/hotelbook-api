@@ -41,12 +41,12 @@ const guestSchema = new mongoose.Schema({
   },
 });
 
-guestSchema.methods.generateAuthToken = function (changepassword) {
+guestSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
       _id: this._id,
       username: this.username,
-      changepassword,
+      isGuest:true
     },
     process.env.JWT_AUTH_PRIVATE_KEY
   );
@@ -58,6 +58,7 @@ guestSchema.methods.generateResetToken = function () {
     {
       _id: this._id,
       email: this.email,
+      isGuest:true
     },
     process.env.JWT_CHANGEPASSWORD_PRIVATE_KEY
   );
