@@ -5,7 +5,7 @@ const validate = require("../../middleware/validate");
 const auth = require("../../middleware/auth");
 const bcrypt = require("bcrypt");
 const findRenter = require("../../utils/findRenter");
-const renterMiddleware = require("../../middleware/renterMiddleware");
+const renterMiddleware = require("../../middleware/renter");
 
 router.post("/", [auth,renterMiddleware, validate(validateRenterPassword)], async (req, res) => {
   const renter = await findRenter(req.user["username"]);
