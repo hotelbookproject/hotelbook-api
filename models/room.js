@@ -4,8 +4,8 @@ const roomSchema = new mongoose.Schema({
   roomType: {
     type: String,
     required: true,
-    min: 1,
-    max: 50,
+    minlength: 1,
+    maxlength: 50,
   },
   numberOfRoomsOfThisType: {
     type: String,

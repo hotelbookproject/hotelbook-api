@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
   let encryptedResetToken = encrypt(resetToken);
   admin.resettoken = encryptedResetToken;
   await admin.save();
-  mailService(admin["email"], resetToken);
+  mailService(admin["email"], resetToken,admin?.name);
   console.log(resetToken);
   res.send("Link Sent Successfully");
 });

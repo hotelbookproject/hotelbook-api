@@ -23,7 +23,7 @@ router.post("/", async (req, res) => {
   let encryptedResetToken = encrypt(resetToken);
   guest.resettoken = encryptedResetToken;
   await guest.save();
-  mailService(guest["email"], resetToken);
+  mailService(guest["email"], resetToken,guest?.name);
   console.log(resetToken);
   res.send("Link Sent Successfully");
 });

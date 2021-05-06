@@ -1,33 +1,29 @@
-const sgMail = require("@sendgrid/mail");
+const nodemailer=require('nodemailer')
 
-module.exports = function (userEmail,resetToken) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  const msg = {
+module.exports = function (userEmail, resetToken,userName) {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false,
+    service: "gmail",
+    auth: {
+      user: process.env.ADMIN_EMAIL,
+      pass: process.env.ADMIN_PASSWORD,
+    },
+  });
+
+  var mailOptions = {
+    from: process.env.ADMIN_EMAIL,
     to: userEmail,
-    from: "nithinjoyapp@gmail.com",
-    subject: "Sending with Twilio SendGrid is Fun",
-    text: "and easy to do anywhere, even with Node.js",
-    html: `<strong>This is your reset token ${resetToken}</strong>`,
+    subject: "Reset Password",
+    html: `<h2>Hello ${userName}</h2>
+        <p>               Click the below link to reset your password.</p>
+       <h4></h4><a href=http://localhost:3800/api/${resetToken}>${resetToken}</a></h4>
+        <h3><b>Regards, HotelBook Group</b></h3>`,
   };
 
-  // sgMail
-  // .send(msg)
-  // .then(() => {
-  //   console.log('Email sent')
-  // })
-  // .catch((error) => {
-  //   console.error(error)
-  // })
-
-  (async () => {
-    try {
-      await sgMail.send(msg);
-    } catch (error) {
-      console.error(error);
-
-      if (error.response) {
-        console.error(error.response.body);
-      }
-    }
-  })();
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) return console.log(error);
+    console.log("Email sent: " + info.response);
+  });
 };
