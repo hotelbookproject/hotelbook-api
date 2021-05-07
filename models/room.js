@@ -36,7 +36,7 @@ const roomSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0,
-    max: 250,
+    max: 25,
   },
   numberOfGuestsInaRoom:{
     type: Number,
@@ -66,7 +66,7 @@ function validateRoom(data) {
     numberOfRoomsOfThisType: Joi.number().min(1).required(),
     kindOfBed: Joi.string().required(),
     numberOfBeds: Joi.string().required(),
-    basePricePerNight: Joi.number().required(),
+    basePricePerNight: Joi.number().required().min(0).max(10),
     facilities: Joi.string().required(),
     bookingFullDates: Joi.date().iso().required(),
     roomsBookedDates: Joi.date().iso().required(),
