@@ -12,7 +12,7 @@ const roomSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: function (v) {
-        return v && !Object.is(Number(v), NaN);
+        return v && !Object.is(Number(v), NaN)&&v.length<=9999;
       },
       message: "This is not a valid number",
     },
@@ -20,29 +20,30 @@ const roomSchema = new mongoose.Schema({
   kindOfBed: {
     type: String,
     required: true,
-    enum: [],
+    enum: ["Single bed","Double bed","Large bed","Extra large bed"],
   },
   numberOfBeds: {
     type: String,
     validate: {
       validator: function (v) {
-        return v && !Object.is(Number(v), NaN);
+        return v && !Object.is(Number(v), NaN)&&v.length<=5;
       },
       message: "This is not a valid number",
     },
     required: true,
   },
   basePricePerNight: {
-    type: String,
+    type: Number,
     required: true,
-    validate: {
-      validator: function (v) {
-        return v && !Object.is(Number(v), NaN);
-      },
-      message: "This is not a valid number",
-    },
+    min: 0,
+    max: 2500000,
   },
-  amenities: {
+  numberOfGuestsInaRoom:{
+    type: Number,
+    min:1,
+    max:50
+  },
+  facilities: {
     type: Array,
     required: true,
     enum: [],
@@ -62,19 +63,13 @@ const Room = mongoose.model("room", roomSchema);
 function validateRoom(data) {
   const schema = Joi.object({
     roomType: Joi.string().min(1).max(50).required(),
-    numberOfRoomsOfThisType: Joi.number()
-      .min(1)
-      .required(),
-      kindOfBed: Joi.string()
-      .required(),
-      numberOfBeds:Joi.string()
-      .required(),
-      basePricePerNight:Joi.number()
-      .required(),
-      amenities:Joi.string()
-      .required(),
-      bookingFullDates:Joi.date().iso().required(),
-      roomsBookedDates:Joi.date().iso().required()
+    numberOfRoomsOfThisType: Joi.number().min(1).required(),
+    kindOfBed: Joi.string().required(),
+    numberOfBeds: Joi.string().required(),
+    basePricePerNight: Joi.number().required(),
+    facilities: Joi.string().required(),
+    bookingFullDates: Joi.date().iso().required(),
+    roomsBookedDates: Joi.date().iso().required(),
   });
   return schema.validate(data);
 }

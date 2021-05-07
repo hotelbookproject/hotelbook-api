@@ -1,3 +1,4 @@
+const Joi = require("joi");
 const mongoose = require("mongoose");
 
 const hotelSchema = new mongoose.Schema({
@@ -44,7 +45,7 @@ const hotelSchema = new mongoose.Schema({
       type: String,
       validate: {
         validator: function (v) {
-          return v && !Object.is(Number(v), NaN)&&v.length===6;
+          return v && !Object.is(Number(v), NaN) && v.length === 6;
         },
         message: "This is not a valid postal code",
       },
@@ -58,7 +59,7 @@ const hotelSchema = new mongoose.Schema({
     breakfast: {
       type: String,
       required: true,
-      enum:["No", "Yes, Free", "Yes, Paid"]
+      enum: ["No", "Yes, Free", "Yes, Paid"],
     },
     facilities: {
       type: Array,
@@ -68,20 +69,22 @@ const hotelSchema = new mongoose.Schema({
         },
         message: "must require at least one facility",
       },
-      enum: [],//todo
+      enum: [], //todo
     },
     extraBed: {
       type: String,
       required: true,
       enum: ["No", "Yes"],
     },
-    extraBedDetails:{
-      type:Array,
-      
+    extraBedDetails: {
+      type: Array,
     },
     mainPhoto: {
       type: URL,
       required: true,
+    },
+    photos:{
+      type: Array,
     },
     freeCancellationAvailable: {
       type: Boolean,
@@ -109,11 +112,11 @@ const hotelSchema = new mongoose.Schema({
       required: true,
     },
     reviewScore: {
-      type: Float,
+      type: Number,
       required: true,
     },
     isVerified: {
-      type: Boolean,
+      type: Number,
       default: false,
     },
     incomeInMonth: {
@@ -128,6 +131,25 @@ const hotelSchema = new mongoose.Schema({
       type: Array,
       default: [],
     },
+    provideDormitoryForDriver:{
+      type:Boolean
+    },
+    GST:{
+      type:Boolean,
+      required: true,
+    },
+    tradeName:{
+      type:String,
+    },
+    GSTIN:{
+      type:String
+    },
+    panCardNumber:{
+      type:String
+    },
+    state:{
+      type:String
+    }
   },
 });
 
@@ -135,17 +157,30 @@ const Hotel = mongoose.model("hotel", hotelSchema);
 
 function validateHotel(data) {
   const schema = Joi.object({
-    name: Joi.string().min(2).max(50).required(),
-    username: Joi.string()
+    hotelName: Joi.string().min(1).max(50).required(),
+    starRating: Joi.string()
       .min(1)
       .max(30)
       .required()
-      .pattern(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/)),
-    email: Joi.string()
-      .required()
-      .pattern(new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)),
-    password: passwordValidation[0],
-    confirmpassword: passwordValidation[1],
+      .valid("1", "2", "3", "4", "5"),
+    contactName: Joi.string().required().min(2).max(50),
+    phoneNumber: Joi.number().required().min(10).max(10),
+    address: Joi.string().required().min(8).max(255),
+    city: Joi.string().required().min(1).max(50),
+    postalCode: Joi.number().required().min(6).max(6),
+    parking: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
+    breakfast: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
+    facilities: Joi.array().required(),
+    extraBed: Joi.boolean().required(),
+    extraBedDetails: Joi.array().optional(),
+    mainPhoto: Joi.url().required(),
+    photos: Joi.array().optional(),
+    freeCancellationAvailable: Joi.boolean().required(),
+    ifNotCancelledBeforeDate: Joi.string(),
+    checkIn: Joi.string().required(),
+    checkOut: Joi.string().required(),
+    accomodateChildren: Joi.boolean().required(),
+    allowPets: Joi.boolean().required(),
   });
   return schema.validate(data);
 }
