@@ -36,7 +36,7 @@ const roomSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0,
-    max: 2500000,
+    max: 250,
   },
   numberOfGuestsInaRoom:{
     type: Number,
