@@ -2,7 +2,6 @@ const Joi = require("joi");
 const mongoose = require("mongoose");
 
 const hotelSchema = new mongoose.Schema({
-  hotelDetails: {
     hotelName: {
       type: String,
       required: true,
@@ -23,7 +22,7 @@ const hotelSchema = new mongoose.Schema({
       type: String,
       validate: {
         validator: function (v) {
-          return v && !Object.is(Number(v), NaN);
+          return v && !Object.is(Number(v), NaN)&&v.length===10;
         },
         message: "This is not a valid mobile number",
       },
@@ -69,21 +68,19 @@ const hotelSchema = new mongoose.Schema({
         },
         message: "must require at least one facility",
       },
-      enum: [], //todo
     },
     extraBed: {
-      type: String,
+      type: Boolean,
       required: true,
-      enum: ["No", "Yes"],
     },
     extraBedDetails: {
       type: Array,
     },
     mainPhoto: {
-      type: URL,
+      type: String,
       required: true,
     },
-    photos:{
+    photos: {
       type: Array,
     },
     freeCancellationAvailable: {
@@ -113,10 +110,10 @@ const hotelSchema = new mongoose.Schema({
     },
     reviewScore: {
       type: Number,
-      required: true,
+      default:0
     },
     isVerified: {
-      type: Number,
+      type: Boolean,
       default: false,
     },
     incomeInMonth: {
@@ -131,49 +128,60 @@ const hotelSchema = new mongoose.Schema({
       type: Array,
       default: [],
     },
-    provideDormitoryForDriver:{
-      type:Boolean
-    },
-    GST:{
-      type:Boolean,
+    isPrepaymentRequired: {
+      type: Boolean,
       required: true,
     },
-    tradeName:{
-      type:String,
+    provideDormitoryForDriver: {
+      type: Boolean,
     },
-    GSTIN:{
-      type:String
+    GST: {
+      type: Boolean,
+      required: true,
     },
-    panCardNumber:{
-      type:String
+    tradeName: {
+      type: String,
     },
-    state:{
-      type:String
-    }
-  },
-});
+    GSTIN: {
+      type: String,
+    },
+    panCardNumber: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+  });
 
 const Hotel = mongoose.model("hotel", hotelSchema);
 
 function validateHotel(data) {
   const schema = Joi.object({
     hotelName: Joi.string().min(1).max(50).required(),
-    starRating: Joi.string()
-      .min(1)
-      .max(30)
-      .required()
-      .valid("1", "2", "3", "4", "5"),
+    starRating: Joi.string().valid("1", "2", "3", "4", "5"),
     contactName: Joi.string().required().min(2).max(50),
-    phoneNumber: Joi.number().required().min(10).max(10),
+    phoneNumber: Joi.string()
+      .required()
+      .length(10)
+      .pattern(/^[0-9]+$/)
+      .message({
+        "string.pattern.base": "Mobile number must include only numbers",
+      }),
     address: Joi.string().required().min(8).max(255),
     city: Joi.string().required().min(1).max(50),
-    postalCode: Joi.number().required().min(6).max(6),
+    postalCode: Joi.string()
+    .required()
+    .length(6)
+    .pattern(/^[0-9]+$/)
+    .message({
+      "string.pattern.base": "Postal code must include only numbers",
+    }),
     parking: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
     breakfast: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
     facilities: Joi.array().required(),
     extraBed: Joi.boolean().required(),
     extraBedDetails: Joi.array().optional(),
-    mainPhoto: Joi.url().required(),
+    mainPhoto: Joi.string().required(),
     photos: Joi.array().optional(),
     freeCancellationAvailable: Joi.boolean().required(),
     ifNotCancelledBeforeDate: Joi.string(),
@@ -181,9 +189,47 @@ function validateHotel(data) {
     checkOut: Joi.string().required(),
     accomodateChildren: Joi.boolean().required(),
     allowPets: Joi.boolean().required(),
+    isPrepaymentRequired: Joi.boolean().required(),
+    provideDormitoryForDriver: Joi.boolean().required(),
+    GST: Joi.boolean(),
+    tradeName: Joi.string(),
+    GSTIN: Joi.string(),
+    panCardNumber: Joi.string(),
+    state: Joi.string(),
   });
   return schema.validate(data);
 }
 
 exports.Hotel = Hotel;
 exports.validateHotel = validateHotel;
+
+//? API post request data
+//{
+//   "hotelName":"abc",
+//   "starRating":"5",
+//   "contactName":"dvd",
+//   "phoneNumber":"914253080".
+//   "address":"rgergerge ergeger egrer",
+//   "city":"dv",
+//   "postalCode":"458698",
+//   "parking":"No",
+//   "breakfast":"No",
+//   "facilities":["bed"],
+//   "extraBed":true,
+//   "extraBedDetails":["ac"],
+//   "mainPhoto":"http://bed",
+//   "photos":["dsd","few"],
+//   "freeCancellationAvailable":false,
+//   "ifNotCancelledBeforeDate":"scsc",
+//   "checkIn":"12:30",
+//   "checkOut":"15:4d",
+//   "accomodateChildren":true,
+//   "allowPets":false,
+//   "isPrepaymentRequired":true,
+//   "provideDormitoryForDriver":true,
+//   "GST":"false",
+//   "tradeName":"cece",
+//   "GSTIN":"wefwe",
+//   "panCardNumber":"wfwef",
+//   "state":"karnataka"
+// }
