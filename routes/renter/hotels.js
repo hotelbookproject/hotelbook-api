@@ -44,4 +44,12 @@ router.put("/:id",[auth, renterMiddleware,validateObjectId, validate(validateHot
   res.send(hotel)
 });
 
+router.delete("/:id",[auth, renterMiddleware,validateObjectId], async (req, res) => {
+  const hotel=await Hotel.findByIdAndDelete(req.params.id)
+  if(!hotel) return res.status(404).send("hotel with given id not found")
+  res.send(hotel)
+});
+
+
+
 module.exports = router;

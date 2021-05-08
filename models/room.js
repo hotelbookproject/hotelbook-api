@@ -66,7 +66,7 @@ function validateRoom(data) {
     numberOfRoomsOfThisType: Joi.number().min(1).required(),
     kindOfBed: Joi.string().required(),
     numberOfBeds: Joi.string().required(),
-    basePricePerNight: Joi.number().required(),
+    basePricePerNight: Joi.min(0).max(2500000).number().required(),
     facilities: Joi.string().required(),
     bookingFullDates: Joi.date().iso().required(),
     roomsBookedDates: Joi.date().iso().required(),
