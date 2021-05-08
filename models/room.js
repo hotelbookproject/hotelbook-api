@@ -4,8 +4,8 @@ const roomSchema = new mongoose.Schema({
   roomType: {
     type: String,
     required: true,
-    min: 1,
-    max: 50,
+    minlength: 1,
+    maxlength: 50,
   },
   numberOfRoomsOfThisType: {
     type: String,
@@ -61,17 +61,20 @@ const Room = mongoose.model("room", roomSchema);
 
 function validateRoom(data) {
   const schema = Joi.object({
-    name: Joi.string().min(2).max(50).required(),
-    username: Joi.string()
+    roomType: Joi.string().min(1).max(50).required(),
+    numberOfRoomsOfThisType: Joi.number()
       .min(1)
-      .max(30)
-      .required()
-      .pattern(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/)),
-    email: Joi.string()
-      .required()
-      .pattern(new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)),
-    password: passwordValidation[0],
-    confirmpassword: passwordValidation[1],
+      .required(),
+      kindOfBed: Joi.string()
+      .required(),
+      numberOfBeds:Joi.string()
+      .required(),
+      basePricePerNight:Joi.number()
+      .required(),
+      amenities:Joi.string()
+      .required(),
+      bookingFullDates:Joi.date().iso().required(),
+      roomsBookedDates:Joi.date().iso().required()
   });
   return schema.validate(data);
 }

@@ -11,21 +11,21 @@ const adminSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    min: 2,
-    max: 50,
+    minlength: 2,
+    maxlength: 50,
   },
   username: {
     type: String,
     required: true,
-    min: 1,
-    max: 30,
+    minlength: 1,
+    maxlength: 30,
     validate: /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/,
   },
   password: {
     type: String,
     required: true,
-    min: 6,
-    max: 1024,
+    minlength: 6,
+    maxlength: 1024,
   },
   resettoken: {
     type: Object,
@@ -86,11 +86,12 @@ function validateAdmin(data) {
       .min(1)
       .max(30)
       .required()
-      .pattern(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/)),
-    email: Joi.string()
+      .pattern(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/))
+      .message({"string.pattern.base":"Invalid username"})
+    ,email: Joi.string()
       .required()
       .pattern(new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/))
-      .message("email is not valid"),
+      .message({"string.pattern.base":"Invalid email address"}),
     password: passwordValidation[0],
     confirmpassword: passwordValidation[1],
   });

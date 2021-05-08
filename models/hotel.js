@@ -5,8 +5,8 @@ const hotelSchema = new mongoose.Schema({
     hotelName: {
       type: String,
       required: true,
-      min: 1,
-      max: 50,
+      minlength: 1,
+      maxlength: 50,
     },
     starRating: {
       type: String,
@@ -15,8 +15,8 @@ const hotelSchema = new mongoose.Schema({
     contactName: {
       type: String,
       required: true,
-      min: 2,
-      max: 50,
+      minlength: 2,
+      maxlength: 50,
     },
     phoneNumber: {
       type: String,
@@ -31,14 +31,14 @@ const hotelSchema = new mongoose.Schema({
     address: {
       type: String,
       required: true,
-      min: 8,
-      max: 255,
+      minlength: 8,
+      maxlength: 255,
     },
     city: {
       type: String,
       required: true,
-      min: 1,
-      max: 50,
+      minlength: 1,
+      maxlength: 50,
     },
     postalCode: {
       type: String,
