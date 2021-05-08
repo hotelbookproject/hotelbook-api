@@ -17,13 +17,17 @@ router.get("/", [auth, renterMiddleware], async (req, res) => {
   res.send(hotel);
 });
 
-router.get("/:id", [auth, renterMiddleware,validateObjectId], async (req, res) => {
-  const hotelId = req.params.id
+router.get(
+  "/:id",
+  [auth, renterMiddleware, validateObjectId],
+  async (req, res) => {
+    const hotelId = req.params.id;
 
-  const hotel = await Hotel.findById(hotelId);
-  if(!hotel) return res.status(404).send("hotel with given id not found")
-  res.send(hotel);
-});
+    const hotel = await Hotel.findById(hotelId);
+    if (!hotel) return res.status(404).send("hotel with given id not found");
+    res.send(hotel);
+  }
+);
 
 router.post(
   "/",
@@ -38,18 +42,26 @@ router.post(
   }
 );
 
-router.put("/:id",[auth, renterMiddleware,validateObjectId, validate(validateHotel)], async (req, res) => {
-  const hotel=await Hotel.findByIdAndUpdate(req.params.id, req.body, { new: true })
-  if(!hotel) return res.status(404).send("hotel with given id not found")
-  res.send(hotel)
-});
+router.put(
+  "/:id",
+  [auth, renterMiddleware, validateObjectId, validate(validateHotel)],
+  async (req, res) => {
+    const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!hotel) return res.status(404).send("hotel with given id not found");
+    res.send(hotel);
+  }
+);
 
-router.delete("/:id",[auth, renterMiddleware,validateObjectId], async (req, res) => {
-  const hotel= await Hotel.findByIdAndDelete(req.params.id)
-  if(!hotel) return res.status(404).send("hotel with given id not found")
-  res.send(hotel)
-});
-
-
+router.delete(
+  "/:id",
+  [auth, renterMiddleware, validateObjectId],
+  async (req, res) => {
+    const hotel = await Hotel.findByIdAndDelete(req.params.id);
+    if (!hotel) return res.status(404).send("hotel with given id not found");
+    res.send(hotel);
+  }
+);
 
 module.exports = router;
