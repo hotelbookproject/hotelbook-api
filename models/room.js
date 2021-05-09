@@ -16,6 +16,7 @@ const roomSchema = new mongoose.Schema({
       },
       message: "This is not a valid number",
     },
+    
   },
   kindOfBed: {
     type: String,
