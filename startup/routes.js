@@ -13,6 +13,7 @@ const renterSignin=require("../routes/renter/signin")
 const renterSignup=require("../routes/renter/signup")
 const renterForgot=require("../routes/renter/forgot")
 const hotels=require("../routes/renter/hotels")
+const rooms=require("../routes/renter/rooms")
 const renterChangePassword=require("../routes/renter/changePassword")
 
 module.exports = function (app) {
@@ -31,6 +32,7 @@ module.exports = function (app) {
   app.use("/api/renter/signup", renterSignup);
   app.use("/api/renter/forgot", renterForgot);
   app.use("/api/renter/hotel", hotels);
+  app.use("/api/renter/room", rooms);
   app.use("/api/renter/changePassword", renterChangePassword);
 };
  
