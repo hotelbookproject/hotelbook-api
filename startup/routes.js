@@ -7,6 +7,7 @@ const adminChangePassword=require("../routes/admin/changePassword")
 const guestSignin=require("../routes/guest/signin")
 const guestSignup=require("../routes/guest/signup")
 const guestForgot=require("../routes/guest/forgot")
+const bookings=require("../routes/guest/bookings")
 const guestChangePassword=require("../routes/guest/changePassword")
 
 const renterSignin=require("../routes/renter/signin")
@@ -26,6 +27,7 @@ module.exports = function (app) {
   app.use("/api/guest/signin", guestSignin);
   app.use("/api/guest/signup", guestSignup);
   app.use("/api/guest/forgot", guestForgot);
+  app.use("/api/guest/book", bookings);
   app.use("/api/guest/changePassword", guestChangePassword);
 
   app.use("/api/renter/signin", renterSignin);

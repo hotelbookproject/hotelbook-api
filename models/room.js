@@ -49,9 +49,9 @@ const roomSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
-  roomsBookedDates: {
-    type: [Object],
-    default: [],
+  noOfBookingsByDate: {
+    type: Object,
+    default: {},
   },
   hotelId:{
     type: mongoose.Schema.Types.ObjectId,
