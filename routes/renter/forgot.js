@@ -12,18 +12,16 @@ router.post("/", async (req, res) => {
   let {userId} = req.body;
   let renter = await findRenter(userId);
   if (!renter)
-    return res
-      .status(400)
-      .send({
-        property: "userId",
-        msg: "There is no user with given email id or username",
-      });
+    return res.status(400).send({
+      property: "userId",
+      msg: "There is no user with given email id or username",
+    });
 
   let resetToken = renter.generateResetToken();
   let encryptedResetToken = encrypt(resetToken);
   renter.resettoken = encryptedResetToken;
   await renter.save();
-  mailService(renter["email"], resetToken,renter?.name);
+  mailService(renter["email"], resetToken, renter?.name);
   console.log(resetToken);
   res.send("Link Sent Successfully");
 });
@@ -44,8 +42,7 @@ router.put("/:token", validate(validateRenterPassword), async (req, res) => {
   if (!renter.resettoken) return res.status(400).send("This link is invalid");
 
   let decryptedResetToken = decrypt(renter.resettoken);
-  if (token !== decryptedResetToken)
-    return res.status(400).send("Something went wrong. Try again");
+  if (token !== decryptedResetToken) return res.status(400).send("Something went wrong. Try again");
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
