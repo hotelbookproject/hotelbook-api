@@ -53,10 +53,10 @@ const roomSchema = new mongoose.Schema({
     type: Object,
     default: null,
   },
-  hotelId:{
+  hotelId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-  }
+  },
 });
 
 const Room = mongoose.model("room", roomSchema);
@@ -72,7 +72,7 @@ function validateRoom(data) {
     basePricePerNight: Joi.number().min(10).max(2500000).required(),
     numberOfGuestsInaRoom: Joi.number().min(1).max(50),
     facilities: Joi.array().required(),
-    hotelId: Joi.objectId()
+    hotelId: Joi.objectId(),
   });
   return schema.validate(data);
 }

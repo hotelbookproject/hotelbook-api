@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
   let encryptedResetToken = encrypt(resetToken);
   admin.resettoken = encryptedResetToken;
   await admin.save();
-  mailService(admin["email"], resetToken,admin?.name);
+  mailService(admin["email"], resetToken, admin?.name);
   console.log(resetToken);
   res.send("Link Sent Successfully");
 });
@@ -42,8 +42,7 @@ router.put("/:token", validate(validateAdminPassword), async (req, res) => {
   if (!admin.resettoken) return res.status(400).send("This link is invalid");
 
   let decryptedResetToken = decrypt(admin.resettoken);
-  if (token !== decryptedResetToken)
-    return res.status(400).send("Something went wrong. Try again");
+  if (token !== decryptedResetToken) return res.status(400).send("Something went wrong. Try again");
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);

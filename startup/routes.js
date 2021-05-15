@@ -1,24 +1,24 @@
-const express=require("express")
-const adminSignin=require("../routes/admin/signin")
-const adminSignup=require("../routes/admin/signup")
-const adminForgot=require("../routes/admin/forgot")
-const adminChangePassword=require("../routes/admin/changePassword")
+const express = require("express");
+const adminSignin = require("../routes/admin/signin");
+const adminSignup = require("../routes/admin/signup");
+const adminForgot = require("../routes/admin/forgot");
+const adminChangePassword = require("../routes/admin/changePassword");
 
-const guestSignin=require("../routes/guest/signin")
-const guestSignup=require("../routes/guest/signup")
-const guestForgot=require("../routes/guest/forgot")
-const bookings=require("../routes/guest/bookings")
-const guestChangePassword=require("../routes/guest/changePassword")
+const guestSignin = require("../routes/guest/signin");
+const guestSignup = require("../routes/guest/signup");
+const guestForgot = require("../routes/guest/forgot");
+const bookings = require("../routes/guest/bookings");
+const guestChangePassword = require("../routes/guest/changePassword");
 
-const renterSignin=require("../routes/renter/signin")
-const renterSignup=require("../routes/renter/signup")
-const renterForgot=require("../routes/renter/forgot")
-const hotels=require("../routes/renter/hotels")
-const rooms=require("../routes/renter/rooms")
-const renterChangePassword=require("../routes/renter/changePassword")
+const renterSignin = require("../routes/renter/signin");
+const renterSignup = require("../routes/renter/signup");
+const renterForgot = require("../routes/renter/forgot");
+const hotels = require("../routes/renter/hotels");
+const rooms = require("../routes/renter/rooms");
+const renterChangePassword = require("../routes/renter/changePassword");
 
 module.exports = function (app) {
-  app.use(express.json())
+  app.use(express.json());
   app.use("/api/admin/signin", adminSignin);
   app.use("/api/admin/signup", adminSignup);
   app.use("/api/admin/forgot", adminForgot);
@@ -37,4 +37,3 @@ module.exports = function (app) {
   app.use("/api/renter/room", rooms);
   app.use("/api/renter/changePassword", renterChangePassword);
 };
- 

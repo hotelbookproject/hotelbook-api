@@ -50,7 +50,7 @@ adminSchema.methods.generateAuthToken = function () {
     {
       _id: this._id,
       username: this.username,
-      isAdmin:this.isAdmin
+      isAdmin: this.isAdmin,
     },
     process.env.JWT_AUTH_PRIVATE_KEY
   );
@@ -62,7 +62,7 @@ adminSchema.methods.generateResetToken = function () {
     {
       _id: this._id,
       email: this.email,
-      isAdmin: this.isAdmin
+      isAdmin: this.isAdmin,
     },
     process.env.JWT_CHANGEPASSWORD_PRIVATE_KEY
   );
@@ -87,11 +87,11 @@ function validateAdmin(data) {
       .max(30)
       .required()
       .pattern(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/))
-      .message({"string.pattern.base":"Invalid username"})
-    ,email: Joi.string()
+      .message({"string.pattern.base": "Invalid username"}),
+    email: Joi.string()
       .required()
       .pattern(new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/))
-      .message({"string.pattern.base":"Invalid email address"}),
+      .message({"string.pattern.base": "Invalid email address"}),
     password: passwordValidation[0],
     confirmpassword: passwordValidation[1],
   });

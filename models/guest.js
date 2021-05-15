@@ -46,7 +46,7 @@ guestSchema.methods.generateAuthToken = function () {
     {
       _id: this._id,
       username: this.username,
-      isGuest:true
+      isGuest: true,
     },
     process.env.JWT_AUTH_PRIVATE_KEY
   );
@@ -58,7 +58,7 @@ guestSchema.methods.generateResetToken = function () {
     {
       _id: this._id,
       email: this.email,
-      isGuest:true
+      isGuest: true,
     },
     process.env.JWT_CHANGEPASSWORD_PRIVATE_KEY
   );
@@ -83,11 +83,11 @@ function validateGuest(data) {
       .max(30)
       .required()
       .pattern(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/))
-      .message({"string.pattern.base":"Invalid username"}),
+      .message({"string.pattern.base": "Invalid username"}),
     email: Joi.string()
       .required()
       .pattern(new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/))
-      .message({"string.pattern.base":"Invalid email address"}),
+      .message({"string.pattern.base": "Invalid email address"}),
     password: passwordValidation[0],
     confirmpassword: passwordValidation[1],
   });

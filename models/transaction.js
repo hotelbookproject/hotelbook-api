@@ -9,18 +9,18 @@ const transactionSchema = new mongoose.Schema({
     type: ObjectId,
     required: true,
   },
-  roomId:{
-    type:ObjectId,
+  roomId: {
+    type: ObjectId,
     required: true,
   },
   amount: {
     type: Number,
     required: true,
-    min:0
+    min: 0,
   },
   isTransactionCompleted: {
     type: Boolean,
-    default:false
+    default: false,
   },
   isCanceled: {
     type: Boolean,

@@ -24,7 +24,7 @@ router.get("/:id", [auth, renter, validateObjectId], async (req, res) => {
 });
 
 router.post("/", [auth, renter, validate(validateHotel)], async (req, res) => {
-  req.body.placeForSearch.toLowerCase()
+  req.body.placeForSearch.toLowerCase();
   const hotel = new Hotel(req.body);
   await hotel.save();
   const renter = await findRenter(req.user.username);
@@ -33,14 +33,13 @@ router.post("/", [auth, renter, validate(validateHotel)], async (req, res) => {
   res.send(hotel);
 });
 
-router.put("/:id",[auth, renter, validateObjectId, validate(validateHotel)],async (req, res) => {
-    const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!hotel) return res.status(404).send("hotel with given id not found");
-    res.send(hotel);
-  }
-);
+router.put("/:id", [auth, renter, validateObjectId, validate(validateHotel)], async (req, res) => {
+  const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  if (!hotel) return res.status(404).send("hotel with given id not found");
+  res.send(hotel);
+});
 
 router.delete("/:id", [auth, renter, validateObjectId], async (req, res) => {
   const hotel = await Hotel.findByIdAndDelete(req.params.id);

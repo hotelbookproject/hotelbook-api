@@ -1,6 +1,6 @@
-const nodemailer=require('nodemailer')
+const nodemailer = require("nodemailer");
 
-module.exports = function (userEmail, resetToken,userName) {
+module.exports = function (userEmail, resetToken, userName) {
   const transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
     port: 587,

@@ -7,13 +7,11 @@ const bcrypt = require("bcrypt");
 const findRenter = require("../../utils/findRenter");
 const renterMiddleware = require("../../middleware/renter");
 
-router.post("/", [auth,renterMiddleware, validate(validateRenterPassword)], async (req, res) => {
+router.post("/", [auth, renterMiddleware, validate(validateRenterPassword)], async (req, res) => {
   const renter = await findRenter(req.user["username"]);
   let validPassword = await bcrypt.compare(req.body.oldpassword, renter.password);
   if (!validPassword)
-    return res
-      .status(400)
-      .send({property: "oldpassword", msg: "Old password is wrong"});
+    return res.status(400).send({property: "oldpassword", msg: "Old password is wrong"});
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -25,4 +23,3 @@ router.post("/", [auth,renterMiddleware, validate(validateRenterPassword)], asyn
 });
 
 module.exports = router;
- 

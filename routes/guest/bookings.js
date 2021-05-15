@@ -4,7 +4,6 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const guest = require("../../middleware/guest");
 const auth = require("../../middleware/auth");
-const validateObjectId = require("../../middleware/validateObjectId");
 const {Hotel} = require("../../models/hotel");
 const {Room} = require("../../models/room");
 const {Booking} = require("../../models/booking");
@@ -14,26 +13,24 @@ router.get("/", async (req, res) => {
   const {placeForSearch, selectedDate} = req.body;
   const allTheDays = getDays(selectedDate);
 
-  const hotels = await Hotel.find({
-    placeForSearch: placeForSearch.toLowerCase(),
-  }).select({hotelRooms: 1});
+  const hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()}).select({
+    hotelRooms: 1,
+  });
 
   const roomIds = _.flattenDeep(_.map(hotels, "hotelRooms"));
 
-  const rooms = await Room.find({
-    _id: {
-      $in: roomIds,
-    },
-    bookingFullDates: {$nin: allTheDays},
-  }).select({hotelId: 1, _id: 0, basePricePerNight: 1});
+  const rooms = await Room.find({_id: {$in: roomIds}, bookingFullDates: {$nin: allTheDays}}).select(
+    {hotelId: 1, _id: 0, basePricePerNight: 1}
+  );
 
   let hotelIds = _.uniq(_.map(rooms, "hotelId"));
 
-  const hotelDetails = await Hotel.find({
-    _id: {
-      $in: hotelIds,
-    },
-  }).select({hotelName: 1, reviewScore: 1, startingRatePerDay: 1, mainPhoto: 1});
+  const hotelDetails = await Hotel.find({_id: {$in: hotelIds}}).select({
+    hotelName: 1,
+    reviewScore: 1,
+    startingRatePerDay: 1,
+    mainPhoto: 1,
+  });
 
   for (hotel of hotelDetails) hotel.startingRatePerDay *= allTheDays.length;
 
