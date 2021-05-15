@@ -11,18 +11,14 @@ const roomSchema = new mongoose.Schema({
   numberOfRoomsOfThisType: {
     type: Number,
     required: true,
-<<<<<<< HEAD
     validate: {
       validator: function (v) {
         return v && !Object.is(Number(v), NaN)&&v.length<=9999;
       },
       message: "This is not a valid number",
     },
-    
-=======
     min: 1,
     max: 9999,
->>>>>>> 396f8c212cedbb0f91617935a8b4bf36c16539c7
   },
   kindOfBed: {
     type: String,
