@@ -24,6 +24,7 @@ router.get("/:id", [auth, renter, validateObjectId], async (req, res) => {
 });
 
 router.post("/", [auth, renter, validate(validateHotel)], async (req, res) => {
+  req.body.placeForSearch.toLowerCase()
   const hotel = new Hotel(req.body);
   await hotel.save();
   const renter = await findRenter(req.user.username);
