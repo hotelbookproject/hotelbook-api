@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Joi = require("joi");
 
 const transactionSchema = new mongoose.Schema({
   hotelId: {
@@ -28,6 +29,19 @@ const transactionSchema = new mongoose.Schema({
   },
 });
 
+function validateTransaction(data){
+
+  const schema = Joi.object({
+    hotelId:Joi.ObjectId().required,
+    guestId:Joi.ObjectId().required,
+    roomId:Joi.ObjectId().required,
+    amount:Joi.Number().required,
+    isTransactionCompleted:Boolean().required,
+    isCanceled:Boolean().required
+  })
+  return schema.validate(data)
+}
 const Transaction = mongoose.model("transaction", transactionSchema);
 
 exports.Transaction = Transaction;
+exports.validateTransaction= validateTransaction;
