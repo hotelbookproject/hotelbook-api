@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 const router = express.Router();
 const auth = require("../../middleware/auth");
 const renter = require("../../middleware/renter");
@@ -38,15 +39,33 @@ router.post("/", [auth, renter, validate(validateRoom)], async (req, res) => {
   if (!hotel) return res.status(404).send("hotel with id not found");
   const room = new Room(req.body);
   await room.save();
-  await Hotel.findByIdAndUpdate(room.hotelId, {
-    $push: {hotelRooms: room._id},
-  });
+
+  let operation
+  if(hotel.startingRatePerDay<req.body.basePricePerNight)
+    operation={$push: {hotelRooms: room._id}}
+  else
+    operation={$push: {hotelRooms: room},startingRatePerDay:req.body.basePricePerNight}  
+
+  await Hotel.findByIdAndUpdate(room.hotelId, operation);
   res.send(room);
 });
 
 router.put("/:id",[auth, renter,validateObjectId, validate(validateRoom)], async (req, res)=>{
+  const {hotelId}=req.body
   const room=await Room.findByIdAndUpdate(req.params.id, req.body,{new:true});
   if(!room) return res.status(404).send("room with given Id not found")
+
+  const hotel = await Hotel.findById(hotelId);
+
+  const rooms = await Room.find({
+    _id: {
+      $in: hotel.hotelRooms,
+    }
+  }).select({hotelId:1,_id:0,basePricePerNight:1});
+
+  const startingRatePerDay = _.min(_.flattenDeep(_.map(rooms,"basePricePerNight")))
+  if(hotel.startingRatePerDay>startingRatePerDay)
+    await Hotel.findByIdAndUpdate(hotelId,{startingRatePerDay})
   res.send(room)
 })
 

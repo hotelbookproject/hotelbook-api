@@ -1,13 +1,21 @@
 const mongoose = require("mongoose");
 
 const bookingSchema= new mongoose.Schema({
-    hotelId:{
-        type:mongoose.Schema.Types.ObjectId,
-        required:true
-    },
     guestId:{
         type:mongoose.Schema.Types.ObjectId,
         required:true
+    },
+    startingDayOfStay:{
+        type:String,
+        required:true,
+        minlength:8,
+        maxlength:10
+    },
+    endingDayOfStay:{
+        type:String,
+        required:true,
+        minlength:8,
+        maxlength:10
     },
     roomDetails:{
         type:Object,
