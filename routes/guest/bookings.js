@@ -7,6 +7,7 @@ const auth = require("../../middleware/auth");
 const {Hotel} = require("../../models/hotel");
 const {Room} = require("../../models/room");
 const {Booking} = require("../../models/booking");
+const {Guest} = require("../../models/guest");
 const getDays = require("../../utils/getDays");
 
 router.get("/", async (req, res) => {
@@ -103,6 +104,8 @@ router.post("/", [auth, guest], async (req, res) => {
 
   const booking = new Booking(roomData);
   await booking.save();
+
+  await Guest.findByIdAndUpdate(req.user._id,{$push:{bookedHotelDetails:booking._id}})
   res.send("Successfully booked");
 });
 

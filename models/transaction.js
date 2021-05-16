@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
-  hotelId: {
-    type: ObjectId,
-    required: true,
-  },
   guestId: {
     type: ObjectId,
     required: true,
   },
   roomId: {
+    type: ObjectId,
+    required: true,
+  },
+  bookingId: {
     type: ObjectId,
     required: true,
   },
