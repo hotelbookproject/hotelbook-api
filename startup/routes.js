@@ -1,7 +1,9 @@
 const express = require("express");
+
 const adminSignin = require("../routes/admin/signin");
 const adminSignup = require("../routes/admin/signup");
 const adminForgot = require("../routes/admin/forgot");
+const verify = require("../routes/admin/verify");
 const adminChangePassword = require("../routes/admin/changePassword");
 
 const guestSignin = require("../routes/guest/signin");
@@ -22,6 +24,7 @@ module.exports = function (app) {
   app.use("/api/admin/signin", adminSignin);
   app.use("/api/admin/signup", adminSignup);
   app.use("/api/admin/forgot", adminForgot);
+  app.use("/api/admin/verify", verify);
   app.use("/api/admin/changePassword", adminChangePassword);
 
   app.use("/api/guest/signin", guestSignin);

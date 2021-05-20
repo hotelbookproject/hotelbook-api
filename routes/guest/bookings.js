@@ -1,8 +1,8 @@
 const express = require("express");
-const _ = require("lodash");
 const router = express.Router();
+const _ = require("lodash");
 const mongoose = require("mongoose");
-const guest = require("../../middleware/guest");
+const guestMiddleware = require("../../middleware/guest");
 const auth = require("../../middleware/auth");
 const {Hotel} = require("../../models/hotel");
 const {Room} = require("../../models/room");
@@ -11,8 +11,20 @@ const {Guest} = require("../../models/guest");
 const getDays = require("../../utils/getDays");
 
 router.get("/", async (req, res) => {
-  const {placeForSearch, selectedDate} = req.body;
-  const allTheDays = getDays(selectedDate);
+  console.log(req.query);
+  const {placeForSearch, selectedDayRange} = req.query;
+  let allTheDays;
+  if (selectedDayRange.from) {
+    allTheDays = getDays(selectedDayRange);
+  } else {
+    const hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()}).select({
+      hotelName: 1,
+      reviewScore: 1,
+      startingRatePerDay: 1,
+      mainPhoto: 1,
+    });
+    return res.send(hotels);
+  }
 
   const hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()}).select({
     hotelRooms: 1,
@@ -53,13 +65,13 @@ router.get("/", async (req, res) => {
 // }}}
 // }
 
-router.post("/", [auth, guest], async (req, res) => {
-  const {roomDetails, selectedDate} = req.body;
+router.post("/", [auth, guestMiddleware], async (req, res) => {
+  const {roomDetails, selectedDayRange} = req.body;
   for (room of roomDetails) {
     if (!mongoose.Types.ObjectId.isValid(room.roomId)) return res.status(404).send("Invalid Id");
   }
 
-  const allTheDays = getDays(selectedDate);
+  const allTheDays = getDays(selectedDayRange);
   const roomsDetails = {};
   let totalPrice = 0;
 
@@ -105,7 +117,7 @@ router.post("/", [auth, guest], async (req, res) => {
   const booking = new Booking(roomData);
   await booking.save();
 
-  await Guest.findByIdAndUpdate(req.user._id,{$push:{bookedHotelDetails:booking._id}})
+  await Guest.findByIdAndUpdate(req.user._id, {$push: {bookedHotelDetails: booking._id}});
   res.send("Successfully booked");
 });
 
