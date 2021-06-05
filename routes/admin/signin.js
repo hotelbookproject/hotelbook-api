@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
   if (!validPassword)
     return res.status(400).send("UserId and Password doesn't Match");
 
-  const token = admin.generateAuthToken();
+  const token = admin.generateAuthToken(); 
   res.send(token);
 });
 
