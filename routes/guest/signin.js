@@ -5,14 +5,15 @@ const findGuest = require("../../utils/findGuest");
 
 router.post("/", async (req, res) => {
   let {userId} = req.body;
+  console.log(userId,"f");
   let guest = await findGuest(userId);
 
   if (!guest)
-    return res.status(400).send({property: "userId", msg: "UserId and Password doesn't Match"});
+    return res.status(400).send("UserId and Password doesn't Match");
 
   let validPassword = await bcrypt.compare(req.body.password, guest.password);
   if (!validPassword)
-    return res.status(400).send({property: "userId", msg: "UserId and Password doesn't Match"});
+    return res.status(400).send("UserId and Password doesn't Match");
 
   const token = guest.generateAuthToken();
   res.send(token);

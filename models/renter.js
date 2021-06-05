@@ -85,7 +85,7 @@ function validateRenter(data) {
       .pattern(new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/))
       .message({"string.pattern.base": "Invalid email address"}),
     password: passwordValidation[0],
-    confirmpassword: passwordValidation[1],
+    confirmPassword: passwordValidation[1],
   });
   return schema.validate(data);
 }
@@ -94,7 +94,7 @@ function validateRenterPassword(data) {
   const schema = Joi.object({
     oldpassword: Joi.string(),
     password: passwordValidation[0],
-    confirmpassword: passwordValidation[1],
+    confirmPassword: passwordValidation[1],
   });
 
   return schema.validate(data);

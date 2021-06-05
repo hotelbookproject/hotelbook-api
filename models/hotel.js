@@ -22,7 +22,7 @@ const hotelSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function (v) {
-        return v && !Object.is(Number(v), NaN) && v.length === 10;
+        return v && !Object.is(Number(v), NaN) && v.length === 12;
       },
       message: "This is not a valid mobile number",
     },
@@ -68,19 +68,17 @@ const hotelSchema = new mongoose.Schema({
   },
   facilities: {
     type: Array,
-    validate: {
-      validator: function (v) {
-        return v && v.length > 0;
-      },
-      message: "must require at least one facility",
-    },
+    default:[]
   },
   extraBed: {
     type: Boolean,
     required: true,
   },
-  extraBedDetails: {
-    type: Array,
+  noOfExtraBeds: {
+    type: Number,
+    min:1,
+    max:4,
+    default:null
   },
   mainPhoto: {
     type: String,
@@ -114,7 +112,7 @@ const hotelSchema = new mongoose.Schema({
     required: true,
   },
   accomodateChildren: {
-    type: String,
+    type: Boolean,
     required: true,
   },
   allowPets: {
@@ -147,6 +145,7 @@ const hotelSchema = new mongoose.Schema({
   },
   provideDormitoryForDriver: {
     type: Boolean,
+    required:true
   },
   GST: {
     type: Boolean,
@@ -160,9 +159,11 @@ const hotelSchema = new mongoose.Schema({
   },
   panCardNumber: {
     type: String,
+    required:true
   },
   state: {
     type: String,
+    required:true
   },
 });
 
@@ -171,11 +172,11 @@ const Hotel = mongoose.model("hotel", hotelSchema);
 function validateHotel(data) {
   const schema = Joi.object({
     hotelName: Joi.string().min(1).max(50).required(),
-    starRating: Joi.string().valid("1", "2", "3", "4", "5"),
+    starRating: Joi.string().valid("","1", "2", "3", "4", "5"),
     contactName: Joi.string().required().min(2).max(50),
     phoneNumber: Joi.string()
       .required()
-      .length(10)
+      .length(12)
       .pattern(/^[0-9]+$/)
       .message({
         "string.pattern.base": "Mobile number must include only numbers",
@@ -192,12 +193,12 @@ function validateHotel(data) {
       }),
     parking: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
     breakfast: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
-    facilities: Joi.array().required().min(1),
+    facilities: Joi.array(),
     extraBed: Joi.boolean().required(),
-    extraBedDetails: Joi.array().optional(),
-    mainPhoto: Joi.string().required(),
-    photos: Joi.array().optional(),
-    freeCancellationAvailable: Joi.boolean().required(),
+    noOfExtraBeds: Joi.number().min(1).max(4),
+    mainPhoto: Joi.any().required(),
+    photos: Joi.any().optional(),
+    freeCancellationAvailable: Joi.string().required(),
     ifNotCancelledBeforeDate: Joi.string(),
     checkIn: Joi.string().required(),
     checkOut: Joi.string().required(),
@@ -205,7 +206,7 @@ function validateHotel(data) {
     allowPets: Joi.boolean().required(),
     isPrepaymentRequired: Joi.boolean().required(),
     provideDormitoryForDriver: Joi.boolean().required(),
-    GST: Joi.boolean(),
+    GST: Joi.boolean().required(),
     tradeName: Joi.string(),
     GSTIN: Joi.string(),
     panCardNumber: Joi.string(),

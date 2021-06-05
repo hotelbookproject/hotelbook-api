@@ -5,9 +5,10 @@ const adminMiddleware = require("../../middleware/admin");
 
 router.get("/",[auth,adminMiddleware], async (req, res)=>{
     //? to get all unverified hotels
+    
 })
 
-router.put("/",[auth,adminMiddleware], async (req, res)=>{
+router.put("/:id",[auth,adminMiddleware], async (req, res)=>{
     //? to mark genuine hotels as verified
 })
 

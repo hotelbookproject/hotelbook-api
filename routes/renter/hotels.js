@@ -1,11 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const app=express()
 const auth = require("../../middleware/auth");
 const renterMiddleware = require("../../middleware/renter");
 const validate = require("../../middleware/validate");
 const validateObjectId = require("../../middleware/validateObjectId");
 const {validateHotel, Hotel} = require("../../models/hotel");
 const findRenter = require("../../utils/findRenter");
+const fileUpload = require('express-fileupload');
+const createFolder=require("../../utils/createFolder")
+const uploadFile=require("../../utils/uploadFiles")
+app.use(fileUpload());
 
 router.get("/", [auth, renterMiddleware], async (req, res) => {
   const {hotels} = await findRenter(req.user.username);
@@ -24,8 +29,14 @@ router.get("/:id", [auth, renterMiddleware, validateObjectId], async (req, res) 
 });
 
 router.post("/", [auth, renterMiddleware, validate(validateHotel)], async (req, res) => {
-  req.body.placeForSearch.toLowerCase();
-  const hotel = new Hotel(req.body);
+  createdFolderDetails = await createFolder(req.user.username);
+    uploadFile(req, res, createdFolderDetails.foldername, function (data) {
+      uploadedFileDetails = data;
+      if (uploadedFileDetails["err"])
+        return res.status(500).send("Error occured at our end. Try again!");
+    });
+  // console.log(req.files)
+  const hotel = new Hotel(req.body); 
   await hotel.save();
   const renter = await findRenter(req.user.username);
   renter.hotels.push(hotel._id);
