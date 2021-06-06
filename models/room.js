@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Joi = require("joi");
+const Yup = require("yup");
 
 const roomSchema = new mongoose.Schema({
   roomType: {
@@ -62,17 +62,17 @@ const roomSchema = new mongoose.Schema({
 const Room = mongoose.model("room", roomSchema);
 
 function validateRoom(data) {
-  const schema = Joi.object({
-    roomType: Joi.string().min(1).max(50).required(),
-    numberOfRoomsOfThisType: Joi.number().min(1).max(9999).required(),
-    kindOfBed: Joi.string()
+  const schema = Yup.object().shape({
+    roomType: Yup.string().min(1).max(50).required(),
+    numberOfRoomsOfThisType: Yup.number().min(1).max(9999).required(),
+    kindOfBed: Yup.string()
       .required()
-      .valid("Single bed", "Double bed", "Large bed", "Extra large bed"),
-    numberOfBeds: Joi.number().min(1).max(10).required(),
-    basePricePerNight: Joi.number().min(10).max(2500000).required(),
-    numberOfGuestsInaRoom: Joi.number().min(1).max(50),
-    facilities: Joi.array().required(),
-    hotelId: Joi.objectId(),
+      .oneOf(["Single bed", "Double bed", "Large bed", "Extra large bed"]),
+    numberOfBeds: Yup.number().min(1).max(10).required(),
+    basePricePerNight: Yup.number().min(10).max(2500000).required(),
+    numberOfGuestsInaRoom: Yup.number().min(1).max(50),
+    facilities: Yup.array().required(),
+    hotelId: Yup.objectId(),
   });
   return schema.validate(data);
 }

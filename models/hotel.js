@@ -1,4 +1,4 @@
-const Joi = require("joi");
+const Yup = require("yup");
 const mongoose = require("mongoose");
 
 const hotelSchema = new mongoose.Schema({
@@ -170,51 +170,48 @@ const hotelSchema = new mongoose.Schema({
 const Hotel = mongoose.model("hotel", hotelSchema);
 
 function validateHotel(data) {
-  const schema = Joi.object({
-    hotelName: Joi.string().min(1).max(50).required(),
-    starRating: Joi.string().valid("","1", "2", "3", "4", "5"),
-    contactName: Joi.string().required().min(2).max(50),
-    phoneNumber: Joi.string()
+  const schema = Yup.object().shape({
+    hotelName: Yup.string().min(1).max(50).required(),
+    starRating: Yup.string().oneOf(["","1", "2", "3", "4", "5"]).nullable(),
+    contactName: Yup.string().required().min(2).max(50),
+    phoneNumber: Yup.string()
       .required()
       .length(12)
-      .pattern(/^[0-9]+$/)
-      .message({
-        "string.pattern.base": "Mobile number must include only numbers",
-      }),
-    address: Joi.string().required().min(8).max(255),
-    city: Joi.string().required().min(1).max(50),
-    placeForSearch: Joi.string().required().min(1).max(50),
-    postalCode: Joi.string()
+      .matches(/^[0-9]+$/, "Mobile number must include only numbers"),
+    address: Yup.string().required().min(8).max(255),
+    city: Yup.string().required().min(1).max(50),
+    placeForSearch: Yup.string().required().min(1).max(50),
+    postalCode: Yup.string()
       .required()
       .length(6)
-      .pattern(/^[0-9]+$/)
-      .message({
-        "string.pattern.base": "Postal code must include only numbers",
-      }),
-    parking: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
-    breakfast: Joi.string().required().valid("No", "Yes, Free", "Yes, Paid"),
-    facilities: Joi.array(),
-    extraBed: Joi.boolean().required(),
-    noOfExtraBeds: Joi.number().min(1).max(4),
-    mainPhoto: Joi.any().required(),
-    photos: Joi.any().optional(),
-    freeCancellationAvailable: Joi.string().required(),
-    ifNotCancelledBeforeDate: Joi.string(),
-    checkIn: Joi.string().required(),
-    checkOut: Joi.string().required(),
-    accomodateChildren: Joi.boolean().required(),
-    allowPets: Joi.boolean().required(),
-    isPrepaymentRequired: Joi.boolean().required(),
-    provideDormitoryForDriver: Joi.boolean().required(),
-    GST: Joi.boolean().required(),
-    tradeName: Joi.string().requiredif( {'GST': Joi.string().valid(true)} ),
-    GSTIN: Joi.string().when("GST", {
+      .matches(/^[0-9]+$/, "Postal code must include only numbers"),
+    parking: Yup.string().required().oneOf(["No", "Yes, Free", "Yes, Paid"]),
+    breakfast: Yup.string().required().oneOf(["No", "Yes, Free", "Yes, Paid"]),
+    facilities: Yup.array(),
+    extraBed: Yup.boolean().required(),
+    noOfExtraBeds: Yup.number().min(1).max(4),
+    mainPhoto: Yup.mixed().required(),
+    photos: Yup.array().nullable(),
+    freeCancellationAvailable: Yup.string().required(),
+    ifNotCancelledBeforeDate: Yup.string(),
+    checkIn: Yup.string().required(),
+    checkOut: Yup.string().required(),
+    accomodateChildren: Yup.boolean().required(),
+    allowPets: Yup.boolean().required(),
+    provideDormitoryForDriver: Yup.boolean().required(),
+    isPrepaymentRequired: Yup.boolean().required(),
+    GST: Yup.boolean().required(),
+    tradeName: Yup.string().when("GST", {
       is: true,
-      then: Joi.string().required("GSTIN is required"),
+      then: Yup.string().required("Trade name is required"),
     }),
-    panCardNumber: Joi.string(),
-    state: Joi.string(),
-  }); 
+    GSTIN: Yup.string().when("GST", {
+      is: true,
+      then: Yup.string().required("GSTIN is required"),
+    }),
+    panCardNumber: Yup.string(),
+    state: Yup.string(),
+  }) 
   return schema.validate(data);
 }
 

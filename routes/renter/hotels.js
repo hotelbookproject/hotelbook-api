@@ -35,7 +35,7 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
     keepExtensions: true,
   });
 
-  formData.parse(req, function (err, fields, files) {
+  formData.parse(req, async function (err, fields, files) {
     let photos = [];
     for (let [key, value] of Object.entries(files)) {
       let newPath =
@@ -76,16 +76,17 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
         }),
         obj
       );
-      
+
     fields = transform(fields);
     console.log(fields);
 
-    const {error} = validateHotel(fields);
-    if (error)
-      return res.status(400).send({
-        property: error.details[0].path[0],
-        msg: error.details[0].message,
-      });
+    validateHotel(fields).catch(e => {
+      error = {
+        property: e.path,
+        msg: e.message,
+      };
+      return res.status(400).send(error);
+    });
   });
 
   // createdFolderDetails = await createFolder(req.user.username);

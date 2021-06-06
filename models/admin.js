@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Joi = require("joi");
 const jwt = require("jsonwebtoken");
+const Yup=require("yup")
 
 const adminSchema = new mongoose.Schema({
   email: {
@@ -71,38 +71,26 @@ adminSchema.methods.generateResetToken = function () {
 
 const Admin = mongoose.model("admin", adminSchema);
 
-let passwordValidation = [
-  Joi.string().min(6).max(256).required(),
-  Joi.any()
-    .equal(Joi.ref("password"))
-    .required()
-    .messages({"any.only": "passwords does not match"}),
-];
 
 function validateAdmin(data) {
-  const schema = Joi.object({
-    name: Joi.string().min(2).max(50).required(),
-    username: Joi.string()
-      .min(1)
-      .max(30)
-      .required()
-      .pattern(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/))
-      .message({"string.pattern.base": "Invalid username"}),
-    email: Joi.string()
-      .required()
-      .pattern(new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/))
-      .message({"string.pattern.base": "Invalid email address"}),
-    password: passwordValidation[0],
-    confirmpassword: passwordValidation[1],
+  const schema = Yup.object().shape({
+    name: Yup.string().min(2).max(50).required("Name is required").label("Name"),
+    email: Yup.string().required("Email is required").email("Email must be valid").label("Email"),
+    username: Yup.string()
+      .required("Username is required")
+      .matches(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/, "Invalid Username")
+      .label("Username"),
+    password: Yup.string().required("Password is required").min(6).max(256).label("Password"),
+    confirmPassword: Yup.string().oneOf([Yup.ref("password"), null], "Passwords must match"),
   });
   return schema.validate(data);
 }
 
 function validateAdminPassword(data) {
-  const schema = Joi.object({
-    oldpassword: Joi.string(),
-    password: passwordValidation[0],
-    confirmpassword: passwordValidation[1],
+  const schema = Yup.object({
+    oldpassword: Yup.string(),
+    password: Yup.string().required("Password is required").min(6).max(256).label("Password"),
+    confirmPassword: Yup.string().oneOf([Yup.ref("password"), null], "Passwords must match"),
   });
 
   return schema.validate(data);
