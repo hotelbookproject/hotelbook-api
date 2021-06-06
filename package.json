@@ -18,7 +18,8 @@
     "days-in-a-row": "^3.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-fileupload": "^1.2.1", 
+    "express-fileupload": "^1.2.1",
+    "formidable": "^1.2.2",
     "joi": "^17.3.0",
     "joi-objectid": "^3.0.1",
     "js-joda": "^1.11.0",
@@ -29,6 +30,7 @@
     "mongoose": "^5.10.15",
     "multer": "^1.4.2",
     "nodemailer": "^6.6.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "yup": "^0.32.9"
   }
 }

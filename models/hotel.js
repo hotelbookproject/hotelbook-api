@@ -207,11 +207,14 @@ function validateHotel(data) {
     isPrepaymentRequired: Joi.boolean().required(),
     provideDormitoryForDriver: Joi.boolean().required(),
     GST: Joi.boolean().required(),
-    tradeName: Joi.string(),
-    GSTIN: Joi.string(),
+    tradeName: Joi.string().requiredif( {'GST': Joi.string().valid(true)} ),
+    GSTIN: Joi.string().when("GST", {
+      is: true,
+      then: Joi.string().required("GSTIN is required"),
+    }),
     panCardNumber: Joi.string(),
     state: Joi.string(),
-  });
+  }); 
   return schema.validate(data);
 }
 
