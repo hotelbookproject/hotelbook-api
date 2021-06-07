@@ -1,10 +1,8 @@
 const formidable = require("formidable");
-const convertImageToBase64 = require("../../utils/convertImageToBase64");
 const express = require("express");
-const _ = require("lodash");
 const router = express.Router();
 const fs = require("fs");
-var path = require("path");
+const sharp = require("sharp");
 
 const auth = require("../../middleware/auth");
 const renterMiddleware = require("../../middleware/renter");
@@ -22,23 +20,11 @@ router.get("/", [auth, renterMiddleware], async (req, res) => {
     },
   }).select({_id: 1, hotelName: 1, mainPhoto: 1});
 
-  // hotel = _.forEach(hotel, function (item) {
-  //   _.forIn(item, async function (value, key) {
-  //     if (key === "mainPhoto") {
-  //       const {error, response} = await convertImageToBase64(value);
-  //       // console.log(abd,"abd")
-  //       if (error) console.log("something went wrong");
-  //       const imageType = path.extname(value).slice(1);
-  //       console.log("doing")
-  //       if (response) item[key] = `data:image/${imageType};base64,` + response;
-  //     }
-  //   }); 
-  // });
-
   res.send(hotel);
 });
 
 router.get("/:id", [auth, renterMiddleware, validateObjectId], async (req, res) => {
+  
   const hotel = await Hotel.findById(req.params.id);
   if (!hotel) return res.status(404).send("hotel with given id not found");
   res.send(hotel);
@@ -60,14 +46,26 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
         Date.now() +
         Math.random().toString().slice(2, 14) +
         value.name;
-      fs.rename(value.path, newPath, function (errorRename) {});
+      fs.rename(value.path, newPath, function (errorRename) {
+        if(errorRename) console.log(errorRename)
+      });
+
+      sharp(newPath)
+        .resize(1920, 1080)
+        .toBuffer(function(err, buffer) {
+          if(err) console.log(err)
+          fs.writeFile(newPath, buffer, function(err) {
+            if(err) console.log(err)
+          });
+        })
 
       if (key === "mainPhoto") {
         fields["mainPhoto"] = newPath;
       } else {
-        photos.push(newPath);
+        photos.push(newPath); 
       }
-    }
+    } 
+
     fields.photos = photos;
     fields.facilities = fields.facilities.split(",");
     delete fields["photos[length]"];
