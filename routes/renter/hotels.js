@@ -1,7 +1,10 @@
 const formidable = require("formidable");
+const convertImageToBase64 = require("../../utils/convertImageToBase64");
 const express = require("express");
+const _ = require("lodash");
 const router = express.Router();
 const fs = require("fs");
+var path = require("path");
 
 const auth = require("../../middleware/auth");
 const renterMiddleware = require("../../middleware/renter");
@@ -13,11 +16,25 @@ const createFolder = require("../../utils/createFolder");
 
 router.get("/", [auth, renterMiddleware], async (req, res) => {
   const {hotels} = await findRenter(req.user.username);
-  const hotel = await Hotel.find({
+  let hotel = await Hotel.find({
     _id: {
       $in: hotels,
     },
   }).select({_id: 1, hotelName: 1, mainPhoto: 1});
+
+  // hotel = _.forEach(hotel, function (item) {
+  //   _.forIn(item, async function (value, key) {
+  //     if (key === "mainPhoto") {
+  //       const {error, response} = await convertImageToBase64(value);
+  //       // console.log(abd,"abd")
+  //       if (error) console.log("something went wrong");
+  //       const imageType = path.extname(value).slice(1);
+  //       console.log("doing")
+  //       if (response) item[key] = `data:image/${imageType};base64,` + response;
+  //     }
+  //   }); 
+  // });
+
   res.send(hotel);
 });
 
@@ -39,13 +56,11 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
     let photos = [];
     for (let [key, value] of Object.entries(files)) {
       let newPath =
-        `public/${req.user.username}/` +
+        `${__basedir}/public/${req.user.username}/` +
         Date.now() +
         Math.random().toString().slice(2, 14) +
         value.name;
-      fs.rename(value.path, newPath, function (errorRename) {
-        console.log("File saved = " + newPath);
-      });
+      fs.rename(value.path, newPath, function (errorRename) {});
 
       if (key === "mainPhoto") {
         fields["mainPhoto"] = newPath;
@@ -57,7 +72,6 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
     fields.facilities = fields.facilities.split(",");
     delete fields["photos[length]"];
     delete fields["photos[item]"];
-    // console.log(files.mainPhoto,"f0")
 
     const booleanKeys = [
       "extraBed",
@@ -79,6 +93,7 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
 
     fields = transform(fields);
     console.log(fields);
+    req.body = fields;
 
     validateHotel(fields).catch(e => {
       error = {
@@ -87,6 +102,13 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
       };
       return res.status(400).send(error);
     });
+
+    const hotel = new Hotel(fields);
+    await hotel.save();
+    const renter = await findRenter(req.user.username);
+    renter.hotels.push(hotel._id);
+    await renter.save();
+    res.send(hotel);
   });
 
   // createdFolderDetails = await createFolder(req.user.username);
@@ -96,7 +118,7 @@ router.post("/", [auth, renterMiddleware], async (req, res) => {
   //       return res.status(500).send("Error occured at our end. Try again!");
   //   });
   // console.log(req.files)
-  // const hotel = new Hotel(req.body);
+  // const hotel = new Hotel(finalData);
   // await hotel.save();
   // const renter = await findRenter(req.user.username);
   // renter.hotels.push(hotel._id);

@@ -10,7 +10,7 @@ const hotelSchema = new mongoose.Schema({
   },
   starRating: {
     type: String,
-    enum: ["1", "2", "3", "4", "5"],
+    enum: ["","1", "2", "3", "4", "5"],
   },
   contactName: {
     type: String,
@@ -95,7 +95,7 @@ const hotelSchema = new mongoose.Schema({
     type: Array,
   },
   freeCancellationAvailable: {
-    type: Boolean,
+    type: String,
     required: true,
   },
   ifNotCancelledBeforeDate: {
@@ -209,8 +209,8 @@ function validateHotel(data) {
       is: true,
       then: Yup.string().required("GSTIN is required"),
     }),
-    panCardNumber: Yup.string(),
-    state: Yup.string(),
+    panCardNumber: Yup.string().required(),
+    state: Yup.string().required(),
   }) 
   return schema.validate(data);
 }
