@@ -20,7 +20,8 @@ const rooms = require("../routes/renter/rooms");
 const renterChangePassword = require("../routes/renter/changePassword");
 
 module.exports = function (app) {
-  app.use(express.json());
+  app.use(express.json({limit: '50mb'}));
+// app.use(express.urlencoded({limit: '50mb'}));
   app.use("/api/admin/signin", adminSignin);
   app.use("/api/admin/signup", adminSignup);
   app.use("/api/admin/forgot", adminForgot);
