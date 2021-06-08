@@ -12,16 +12,17 @@ module.exports = function (req, res, folder, returnFileName) {
     },
   });
 
-  var upload = multer({storage: storage}).single("file");
+  var upload = multer({storage: storage}).single("mainPhoto");
 
   upload(req, res, function (err) {
-    if (err instanceof multer.MulterError) {
-      return returnFileName({err, name});
-    } else if (err) {
-      return returnFileName({err, name});
+    if (err instanceof multer.MulterError) { 
+      // return returnFileName({err, name});
+    } else if (err) { 
+      // return returnFileName({err, name});
     }
-    err = "";
-    name = req.file.filename;
-    returnFileName({err, name});
+    // err = "";
+    // console.log(req.mainPhoto,"z")
+    // name = req.file.filename;
+    // returnFileName({err, name});
   });
 };

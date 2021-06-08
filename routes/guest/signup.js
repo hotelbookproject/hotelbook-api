@@ -12,6 +12,9 @@ router.post("/", [validate(validateGuest)], async (req, res) => {
   let username = await Guest.findOne({username: req.body.username.toLowerCase()});
   if (username) return res.status(400).send({property: "username", msg: "Username Already Taken"});
 
+  if (req.body.password !== req.body.confirmPassword)
+    return res.status(400).send({property: "confirmPassword", msg: "Passwords doesn't Match'"});
+
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 

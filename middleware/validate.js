@@ -1,11 +1,14 @@
 module.exports = validator => {
-  return (req, res, next) => {
-    const {error} = validator(req.body);
-    if (error)
-      return res.status(400).send({
-        property: error.details[0].path[0],
-        msg: error.details[0].message,
-      });
-    next();
+  return async (req, res, next) => {
+    const abc=await validator(req.body)
+      // .then(() => next())
+      // .catch(e => {
+      //   error = {
+      //     property: e.path,
+      //     msg: e.message,
+      //   };
+      //   return res.status(400).send(error);
+      // });
+      console.log(abc,"mm")
   };
 };

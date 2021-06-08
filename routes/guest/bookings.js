@@ -9,20 +9,33 @@ const {Room} = require("../../models/room");
 const {Booking} = require("../../models/booking");
 const {Guest} = require("../../models/guest");
 const getDays = require("../../utils/getDays");
+const convertImageToBase64 = require("../../utils/convertImageToBase64");
+var path = require("path");
 
 router.get("/", async (req, res) => {
   console.log(req.query);
+  let selectedProperties = {
+    hotelName: 1,
+    reviewScore: 1,
+    startingRatePerDay: 1,
+    mainPhoto: 1,
+  };
   const {placeForSearch, selectedDayRange} = req.query;
   let allTheDays;
   if (selectedDayRange.from) {
     allTheDays = getDays(selectedDayRange);
   } else {
-    const hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()}).select({
-      hotelName: 1,
-      reviewScore: 1,
-      startingRatePerDay: 1,
-      mainPhoto: 1,
-    });
+    let hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()}).select(
+      selectedProperties
+    );
+
+    for (item of hotels) {
+      const imageType = path.extname(item?.mainPhoto).slice(1);
+      
+      const {error, response} = await convertImageToBase64(item?.mainPhoto);
+      if (error) console.log("something went wrong");
+      if (response) item["mainPhoto"] = `data:image/${imageType};base64,` + response;
+    }
     return res.send(hotels);
   }
 
@@ -38,12 +51,7 @@ router.get("/", async (req, res) => {
 
   let hotelIds = _.uniq(_.map(rooms, "hotelId"));
 
-  const hotelDetails = await Hotel.find({_id: {$in: hotelIds}}).select({
-    hotelName: 1,
-    reviewScore: 1,
-    startingRatePerDay: 1,
-    mainPhoto: 1,
-  });
+  let hotelDetails = await Hotel.find({_id: {$in: hotelIds}}).select(selectedProperties);
 
   for (hotel of hotelDetails) hotel.startingRatePerDay *= allTheDays.length;
 
