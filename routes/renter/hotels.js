@@ -28,7 +28,7 @@ router.get("/:id", [auth, renterMiddleware, validateObjectId], async (req, res) 
   res.send(hotel);
 });
 
-router.post("/", [auth, renterMiddleware,validate(validateHotel)], async (req, res) => {
+router.post("/", [auth, renterMiddleware, validate(validateHotel)], async (req, res) => {
   createFolder(req.user.username);
 
   req.body.mainPhoto = await convertBase64toImage(req.user.username, req.body.mainPhoto);
@@ -51,9 +51,18 @@ router.put(
   "/:id",
   [auth, renterMiddleware, validateObjectId, validate(validateHotel)],
   async (req, res) => {
+    req.body.mainPhoto = await convertBase64toImage(req.user.username, req.body.mainPhoto);
+
+    let photos = [];
+    if (req.body.photos.length > 0)
+      for (let image of req.body.photos)
+        photos.push(await convertBase64toImage(req.user.username, image));
+    req.body.photos = photos = [...req.body.photos, ...photos];
+
     const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
+
     if (!hotel) return res.status(404).send("hotel with given id not found");
     res.send(hotel);
   }

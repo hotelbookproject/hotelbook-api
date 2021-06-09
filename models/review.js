@@ -1,22 +1,32 @@
 const mongoose = require("mongoose");
-const Joi = require("joi");
+const Yup = require("yup");
 
 const reviewSchema = new mongoose.Schema({
-    reviewsId: {
+    hotelId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
       },
-    reviews: {
+    guestId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+      },
+    review: {
         type: String,
         required: true
+    },
+    rating:{
+        type: String,
+        required: true,
+        enum:["1","2","3","4","5"]
     }
 });
 
 const Review = mongoose.model("review", reviewSchema);
 
 function validateReview(data) {
-    const schema = Joi.object({
-        review: Joi.string().min(2).max(50).required()
+    const schema = Yup.object().shape({
+        review: Yup.string().min(2).max(10000).required(),
+        rating:Yup.string().required().oneOf(["1","2","3","4","5"])
     });
     return schema.validate(data);
 }

@@ -39,6 +39,14 @@ const guestSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
+  reviewedHotelIds:{
+    type:Array,
+    default:[]
+  },
+  reviewIds:{
+    type:Array,
+    default:[]
+  }
 });
 
 guestSchema.methods.generateAuthToken = function () {

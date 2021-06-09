@@ -131,7 +131,7 @@ const hotelSchema = new mongoose.Schema({
     type: Object,
     default: null,
   },
-  reviews: {
+  reviewIds: {
     type: Array,
     default: [],
   },
