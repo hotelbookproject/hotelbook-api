@@ -165,6 +165,12 @@ const hotelSchema = new mongoose.Schema({
     type: String,
     required:true
   },
+  paymentAddress:{
+    type:String,
+    required:true,
+    min:8,
+    max:255
+  }
 });
 
 const Hotel = mongoose.model("hotel", hotelSchema);
@@ -211,6 +217,7 @@ function validateHotel(data) {
     }),
     panCardNumber: Yup.string().required(),
     state: Yup.string().required(),
+    paymentAddress:Yup.string().required().min(8).max(255),
   }) 
   return schema.validate(data);
 }

@@ -1,0 +1,13 @@
+TODO: 
+RENTER
+
+renter dashboard
+add rooms
+
+GUEST
+
+guest dashboard
+book rooms
+
+ADMIN
+

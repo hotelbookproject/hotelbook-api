@@ -10,6 +10,7 @@ const {validateHotel, Hotel} = require("../../models/hotel");
 const findRenter = require("../../utils/findRenter");
 const createFolder = require("../../utils/createFolder");
 const convertBase64toImage = require("../../utils/convertBase64toImage");
+const { retrieveMainPhoto,retrieveOtherPhotos } = require("../../utils/retrieveImages");
 
 router.get("/", [auth, renterMiddleware], async (req, res) => {
   const {hotels} = await findRenter(req.user.username);
@@ -18,23 +19,27 @@ router.get("/", [auth, renterMiddleware], async (req, res) => {
       $in: hotels,
     },
   }).select({_id: 1, hotelName: 1, mainPhoto: 1});
+  hotel=await retrieveMainPhoto(hotel)
 
   res.send(hotel);
 });
 
 router.get("/:id", [auth, renterMiddleware, validateObjectId], async (req, res) => {
-  const hotel = await Hotel.findById(req.params.id);
+  console.log("abc")
+  let hotel = [await Hotel.findById(req.params.id)];
   if (!hotel) return res.status(404).send("hotel with given id not found");
+  hotel=await retrieveMainPhoto(hotel)
+  hotel=await retrieveOtherPhotos(hotel)
   res.send(hotel);
 });
-
+ 
 router.post("/", [auth, renterMiddleware, validate(validateHotel)], async (req, res) => {
   createFolder(req.user.username);
 
   req.body.mainPhoto = await convertBase64toImage(req.user.username, req.body.mainPhoto);
 
   let photos = [];
-  if (req.body.photos.length > 0)
+  if (req.body.photos.length > 0) 
     for (let image of req.body.photos)
       photos.push(await convertBase64toImage(req.user.username, image));
   req.body.photos = photos;
@@ -57,7 +62,7 @@ router.put(
     if (req.body.photos.length > 0)
       for (let image of req.body.photos)
         photos.push(await convertBase64toImage(req.user.username, image));
-    req.body.photos = photos = [...req.body.photos, ...photos];
+    req.body.photos = photos
 
     const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

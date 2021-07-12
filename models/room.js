@@ -38,12 +38,7 @@ const roomSchema = new mongoose.Schema({
   },
   facilities: {
     type: Array,
-    validate: {
-      validator: function (v) {
-        return v && v.length > 0;
-      },
-      message: "must require at least one facility",
-    },
+    required:true
   },
   bookingFullDates: {
     type: Array,
@@ -72,14 +67,14 @@ function validateRoom(data) {
     basePricePerNight: Yup.number().min(10).max(2500000).required(),
     numberOfGuestsInaRoom: Yup.number().min(1).max(50),
     facilities: Yup.array().required(),
-    hotelId: Yup.objectId(),
+    // hotelId: Yup.objectId(),
   });
   return schema.validate(data);
 }
 
-exports.Room = Room;
-exports.validateRoom = validateRoom;
-
+exports.Room = Room; 
+exports.validateRoom = validateRoom; 
+ 
 //? API post request data
 // {
 //   "roomType":"luxury",

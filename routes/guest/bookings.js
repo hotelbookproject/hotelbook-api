@@ -10,7 +10,8 @@ const {Booking} = require("../../models/booking");
 const {Guest} = require("../../models/guest");
 const getDays = require("../../utils/getDays");
 const convertImageToBase64 = require("../../utils/convertImageToBase64");
-var path = require("path");
+const path = require("path");
+const { retrieveMainPhoto } = require("../../utils/retrieveImages");
 
 router.get("/", async (req, res) => {
   console.log(req.query);
@@ -29,13 +30,15 @@ router.get("/", async (req, res) => {
       selectedProperties
     );
 
-    for (item of hotels) {
-      const imageType = path.extname(item?.mainPhoto).slice(1);
+    hotels=await retrieveMainPhoto(hotels)
+
+    // for (item of hotels) {
+    //   const imageType = path.extname(item?.mainPhoto).slice(1);
       
-      const {error, response} = await convertImageToBase64(item?.mainPhoto);
-      if (error) console.log("something went wrong");
-      if (response) item["mainPhoto"] = `data:image/${imageType};base64,` + response;
-    }
+    //   const {error, response} = await convertImageToBase64(item?.mainPhoto);
+    //   if (error) console.log("something went wrong");
+    //   if (response) item["mainPhoto"] = `data:image/${imageType};base64,` + response;
+    // }
     return res.send(hotels);
   }
 

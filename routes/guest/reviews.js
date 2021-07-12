@@ -6,11 +6,8 @@ const {Hotel} = require("../../models/hotel");
 const validateObjectId = require("../../middleware/validateObjectId");
 const {Review} = require("../../models/review");
 const {Guest} = require("../../models/guest");
-//? to get user id, use req.user._id
 
-//? /:id we get is hotel id
 router.get("/:id", [validateObjectId], async (req, res) => {
-  //? to get all reviews related to particular hotels
   const {reviewIds} = await Hotel.findById(req.params.id).select({reviewIds: 1, _id: 0});
   if (reviewIds.length === 0) return res.send("no review yet");
 
@@ -24,11 +21,9 @@ router.get("/:id", [validateObjectId], async (req, res) => {
 });
 
 router.post("/:id", [auth, guestMiddleware, validateObjectId], async (req, res) => {
-  //? store review to database, allow reviewer to write review after he completes his stay.
   const hotelId = req.params.id;
-  const {bookedHotelDetails, previousBookedHotelDetails} = await Guest.findById(req.user._id);
-  let eligibleToReview =
-    bookedHotelDetails.includes(hotelId) || previousBookedHotelDetails.includes(hotelId);
+  const {previousBookedHotelDetails} = await Guest.findById(req.user._id);
+  let eligibleToReview = previousBookedHotelDetails.includes(hotelId);
   if (!eligibleToReview) return res.status(400).send("You are not elligible to review");
 
   req.body.guestId = req.user._id;
@@ -70,7 +65,7 @@ router.delete("/:id", [auth, guestMiddleware, validateObjectId], async (req, res
   if (!editPermission) return res.status(400).send("You don't have permission to delete");
 
   const deleted = await Review.findByIdAndDelete(reviewId);
-  if(!deleted) return res.status(500).send("Something went wrong at our end")
+  if (!deleted) return res.status(500).send("Something went wrong at our end");
   await Hotel.findByIdAndUpdate(review.hotelId, {$pull: {reviewIds: review._id}});
   await Guest.findByIdAndUpdate(req.user._id, {
     $pull: {reviewedHotelIds: review.hotelId, reviewIds: review._id},

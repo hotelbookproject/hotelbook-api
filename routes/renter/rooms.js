@@ -35,6 +35,7 @@ router.get("/:id", [auth, renter, validateObjectId], async (req, res) => {
 });
 
 router.post("/", [auth, renter, validate(validateRoom)], async (req, res) => {
+  if(!mongoose.Types.ObjectId.isValid(req.body.hotelId)) return res.status(400).send({property:"toast",msg:"Invalid hotelId"})
   const hotel = await Hotel.findById(req.body.hotelId);
   if (!hotel) return res.status(404).send("hotel with id not found");
   const room = new Room(req.body);
