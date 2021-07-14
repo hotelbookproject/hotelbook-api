@@ -80,16 +80,16 @@ const hotelSchema = new mongoose.Schema({
     max:4,
     default:null
   },
-  mainPhoto: {
-    type: String,
-    required: true,
-  },
   startingRatePerDay: {
     type: Number,
     required: true,
     min: 0,
     max: 2500000,
     default: 0,
+  },
+  mainPhoto: {
+    type: String,
+    required: true,
   },
   photos: {
     type: Array,

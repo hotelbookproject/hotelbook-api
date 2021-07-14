@@ -9,8 +9,8 @@ const validateObjectId = require("../../middleware/validateObjectId");
 const {validateHotel, Hotel} = require("../../models/hotel");
 const findRenter = require("../../utils/findRenter");
 const createFolder = require("../../utils/createFolder");
-const convertBase64toImage = require("../../utils/convertBase64toImage");
 const { retrieveMainPhoto,retrieveOtherPhotos } = require("../../utils/retrieveImages");
+const saveImagesandGetPath = require("../../utils/saveImagesandGetPath");
 
 router.get("/", [auth, renterMiddleware], async (req, res) => {
   const {hotels} = await findRenter(req.user.username);
@@ -18,7 +18,7 @@ router.get("/", [auth, renterMiddleware], async (req, res) => {
     _id: {
       $in: hotels,
     },
-  }).select({_id: 1, hotelName: 1, mainPhoto: 1});
+  }).select({_id: 1, hotelName: 1, mainPhoto: 1,city:1});
   hotel=await retrieveMainPhoto(hotel)
 
   res.send(hotel);
@@ -35,14 +35,7 @@ router.get("/:id", [auth, renterMiddleware, validateObjectId], async (req, res) 
  
 router.post("/", [auth, renterMiddleware, validate(validateHotel)], async (req, res) => {
   createFolder(req.user.username);
-
-  req.body.mainPhoto = await convertBase64toImage(req.user.username, req.body.mainPhoto);
-
-  let photos = [];
-  if (req.body.photos.length > 0) 
-    for (let image of req.body.photos)
-      photos.push(await convertBase64toImage(req.user.username, image));
-  req.body.photos = photos;
+  await saveImagesandGetPath(req)
 
   const hotel = new Hotel(req.body);
   await hotel.save();
@@ -56,13 +49,7 @@ router.put(
   "/:id",
   [auth, renterMiddleware, validateObjectId, validate(validateHotel)],
   async (req, res) => {
-    req.body.mainPhoto = await convertBase64toImage(req.user.username, req.body.mainPhoto);
-
-    let photos = [];
-    if (req.body.photos.length > 0)
-      for (let image of req.body.photos)
-        photos.push(await convertBase64toImage(req.user.username, image));
-    req.body.photos = photos
+    await saveImagesandGetPath(req)
 
     const hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

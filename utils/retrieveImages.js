@@ -12,7 +12,7 @@ async function retrieveMainPhoto(hotel) {
       return hotel
 }
 
-async function retrieveOtherPhotos(hotel) {
+async function retrieveOtherPhotos(hotel) { 
         let base64Photos=[]
         for(photo of hotel[0].photos){
             const imageType = path.extname(photo).slice(1);
@@ -21,7 +21,7 @@ async function retrieveOtherPhotos(hotel) {
             if (response) base64Photos.push(`data:image/${imageType};base64,` + response)
         }
 
-        hotel[0].photos=base64Photos
+        hotel[0].photos=base64Photos 
         return hotel[0]
 }
 

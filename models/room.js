@@ -48,6 +48,13 @@ const roomSchema = new mongoose.Schema({
     type: Object,
     default: null,
   },
+  mainPhoto: {
+    type: String,
+    required: true,
+  },
+  photos: {
+    type: Array,
+  },
   hotelId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -67,7 +74,8 @@ function validateRoom(data) {
     basePricePerNight: Yup.number().min(10).max(2500000).required(),
     numberOfGuestsInaRoom: Yup.number().min(1).max(50),
     facilities: Yup.array().required(),
-    // hotelId: Yup.objectId(),
+    mainPhoto: Yup.mixed().required(),
+    photos: Yup.array().nullable(),
   });
   return schema.validate(data);
 }
