@@ -9,7 +9,7 @@ const validateObjectId = require("../../middleware/validateObjectId");
 const saveImagesandGetPath = require("../../utils/saveImagesandGetPath");
 const createFolder = require("../../utils/createFolder");
 const {validateRoom, Room} = require("../../models/room");
-const { retrieveMainPhoto,retrieveOtherPhotos } = require("../../utils/retrieveImages");
+const {retrieveMainPhoto, retrieveOtherPhotos} = require("../../utils/retrieveImages");
 const {Hotel} = require("../../models/hotel");
 
 router.get("/", [auth, renter], async (req, res) => {
@@ -18,48 +18,51 @@ router.get("/", [auth, renter], async (req, res) => {
     return res.status(404).send("Invalid Id");
 
   const {hotelRooms} = await Hotel.findById(req.query.hotelId);
-  let rooms = [await Room.find({
-    _id: {
-      $in: hotelRooms,
-    },
-  }).select({ 
-    _id: 1,
-    roomType: 1,
-    basePricePerNight: 1,
-    numberOfGuestsInaRoom: 1,
-    mainPhoto:1,
-    numberOfBeds:1,
-    kindOfBed:1
-  })]
+  let rooms = [
+    await Room.find({
+      _id: {
+        $in: hotelRooms,
+      },
+    }).select({
+      _id: 1,
+      roomType: 1,
+      basePricePerNight: 1,
+      numberOfGuestsInaRoom: 1,
+      mainPhoto: 1,
+      numberOfBeds: 1,
+      kindOfBed: 1,
+    }),
+  ];
 
   // return console.log(rooms,"rooms")
 
-  let finalRoomsData=[]
-  for(let room of rooms) {
-    finalRoomsData.push(await retrieveMainPhoto(room))
-  } 
+  let finalRoomsData = [];
+  for (let room of rooms) {
+    finalRoomsData.push(await retrieveMainPhoto(room));
+  }
 
   res.send(_.flattenDeep(finalRoomsData));
 });
 
 router.get("/:id", [auth, renter, validateObjectId], async (req, res) => {
-  console.log(req.params.id)
+  console.log(req.params.id);
   let room = [await Room.findById(req.params.id)];
   // console.log(room,"rm")
   if (!room) return res.status(404).send("room with given id not found");
-  room=await retrieveMainPhoto(room)
-  room=await retrieveOtherPhotos(room)
+  room = await retrieveMainPhoto(room);
+  room = await retrieveOtherPhotos(room);
   // console.log(room[0].roomType)
   res.send(room);
 });
 
 router.post("/", [auth, renter, validate(validateRoom)], async (req, res) => {
-  if(!mongoose.Types.ObjectId.isValid(req.body.hotelId)) return res.status(400).send({property:"toast",msg:"Invalid hotelId"})
+  if (!mongoose.Types.ObjectId.isValid(req.body.hotelId))
+    return res.status(400).send({property: "toast", msg: "Invalid hotelId"});
   const hotel = await Hotel.findById(req.body.hotelId);
   if (!hotel) return res.status(404).send("hotel with id not found");
 
   createFolder(req.user.username);
-  await saveImagesandGetPath(req)
+  await saveImagesandGetPath(req);
 
   const room = new Room(req.body);
   await room.save();
@@ -75,21 +78,24 @@ router.post("/", [auth, renter, validate(validateRoom)], async (req, res) => {
 
 router.put("/:id", [auth, renter, validateObjectId, validate(validateRoom)], async (req, res) => {
   const {hotelId} = req.body;
-  await saveImagesandGetPath(req)
+  await saveImagesandGetPath(req);
   const room = await Room.findByIdAndUpdate(req.params.id, req.body, {new: true});
   if (!room) return res.status(404).send("room with given Id not found");
 
-  const hotel = await Hotel.findById(hotelId); 
+  const hotel = await Hotel.findById(hotelId);
 
-  const rooms = await Room.find({  
+  const rooms = await Room.find({
     _id: {
-      $in: hotel.hotelRooms, 
-    }, 
+      $in: hotel.hotelRooms,
+    },
   }).select({hotelId: 1, _id: 0, basePricePerNight: 1});
 
-
   const startingRatePerDay = _.min(_.flattenDeep(_.map(rooms, "basePricePerNight")));
-  if (hotel.startingRatePerDay > startingRatePerDay)
+
+  if (
+    !(hotel.startingRatePerDay < startingRatePerDay) ||
+    !(hotel.startingRatePerDay > startingRatePerDay)
+  )
     await Hotel.findByIdAndUpdate(hotelId, {startingRatePerDay});
   res.send(room);
 });

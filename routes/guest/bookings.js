@@ -9,36 +9,36 @@ const {Room} = require("../../models/room");
 const {Booking} = require("../../models/booking");
 const {Guest} = require("../../models/guest");
 const getDays = require("../../utils/getDays");
-const convertImageToBase64 = require("../../utils/convertImageToBase64");
-const path = require("path");
-const { retrieveMainPhoto } = require("../../utils/retrieveImages");
+const {retrieveMainPhoto} = require("../../utils/retrieveImages");
 
 router.get("/", async (req, res) => {
-  console.log(req.query);
   let selectedProperties = {
     hotelName: 1,
     reviewScore: 1,
     startingRatePerDay: 1,
     mainPhoto: 1,
+    city: 1,
   };
-  const {placeForSearch, selectedDayRange} = req.query;
+  
+  let {placeForSearch, selectedDayRange, pageNumber, pageSize} = req.query;
+  pageNumber=Number(pageNumber)
+  pageSize=Number(pageSize)
+
   let allTheDays;
   if (selectedDayRange.from) {
     allTheDays = getDays(selectedDayRange);
   } else {
-    let hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()}).select(
-      selectedProperties
-    );
+    let hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()})
+      .select(selectedProperties)
+      .skip(pageNumber * pageSize)
+      .limit(pageSize);
 
-    hotels=await retrieveMainPhoto(hotels)
+    let hotelsCount = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()})
+      .select(selectedProperties)
+      .countDocuments();
 
-    // for (item of hotels) {
-    //   const imageType = path.extname(item?.mainPhoto).slice(1);
-      
-    //   const {error, response} = await convertImageToBase64(item?.mainPhoto);
-    //   if (error) console.log("something went wrong");
-    //   if (response) item["mainPhoto"] = `data:image/${imageType};base64,` + response;
-    // }
+    hotels = await retrieveMainPhoto(hotels);
+    hotels = {hotelsCount, hotels};
     return res.send(hotels);
   }
 

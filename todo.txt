@@ -8,6 +8,8 @@ GUEST
 
 guest dashboard
 book rooms
+search with date
+filter
 
 ADMIN
 
