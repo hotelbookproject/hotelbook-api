@@ -15,9 +15,13 @@ const reviewSchema = new mongoose.Schema({
         required: true
     },
     rating:{
-        type: String,
+        type: Number,
         required: true,
-        enum:["1","2","3","4","5"]
+        enum:[1,2,3,4,5]
+    },
+    reviewedOn:{
+        type:String,
+        required:true
     }
 });
 

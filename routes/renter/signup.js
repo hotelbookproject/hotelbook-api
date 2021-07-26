@@ -26,8 +26,9 @@ router.post("/", [validate(validateRenter)], async (req, res) => {
 
   const renter = new Renter(renterData);
   await renter.save();
+  const token=renter.generateAuthToken()
 
-  res.send("Signup Successful");
+  res.send(token);
 });
 
 module.exports = router;

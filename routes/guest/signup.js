@@ -26,8 +26,8 @@ router.post("/", [validate(validateGuest)], async (req, res) => {
 
   const guest = new Guest(guestData);
   await guest.save();
-
-  res.send("Signup Successful");
+  const token=guest.generateAuthToken()
+  res.send(token);
 });
 
 module.exports = router;

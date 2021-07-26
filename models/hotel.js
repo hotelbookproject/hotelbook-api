@@ -9,8 +9,8 @@ const hotelSchema = new mongoose.Schema({
     maxlength: 50,
   },
   starRating: {
-    type: String,
-    enum: ["","1", "2", "3", "4", "5"],
+    type: Number,
+    enum: [0,1,2,3,4,5],
   },
   contactName: {
     type: String,
@@ -59,7 +59,7 @@ const hotelSchema = new mongoose.Schema({
   parking: {
     type: String,
     required: true,
-    enum: ["No", "Yes, Free", "Yes, paid"],
+    enum: ["No", "Yes, Free", "Yes, Paid"],
   },
   breakfast: {
     type: String,

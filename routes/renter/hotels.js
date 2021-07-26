@@ -13,8 +13,6 @@ const {retrieveMainPhoto, retrieveOtherPhotos} = require("../../utils/retrieveIm
 const saveImagesandGetPath = require("../../utils/saveImagesandGetPath");
 
 router.get("/", [auth, renterMiddleware], async (req, res) => {
-  console.log(req.query, "qr");
-
   let {pageNumber, pageSize} = req.query;
   pageNumber = Number(pageNumber);
   pageSize = Number(pageSize);
@@ -24,10 +22,10 @@ router.get("/", [auth, renterMiddleware], async (req, res) => {
     _id: {
       $in: hotels,
     },
-  })
-    .select({_id: 1, hotelName: 1, mainPhoto: 1, city: 1, startingRatePerDay: 1})
+  }).select({_id: 1, hotelName: 1, mainPhoto: 1, city: 1, startingRatePerDay: 1})
     .skip(pageNumber * pageSize)
     .limit(pageSize);
+
   hotel = await retrieveMainPhoto(hotel);
 
   let hotelsCount = await Hotel.find({
@@ -53,7 +51,12 @@ router.get("/:id", [auth, renterMiddleware, validateObjectId], async (req, res) 
 router.post("/", [auth, renterMiddleware, validate(validateHotel)], async (req, res) => {
   createFolder(req.user.username);
   await saveImagesandGetPath(req);
-
+  
+  let {starRating}=req.body
+  if(starRating) starRating=Number(starRating)
+  else starRating=0
+  
+  req.body.starRating=starRating
   const hotel = new Hotel(req.body);
   await hotel.save();
   const renter = await findRenter(req.user.username);

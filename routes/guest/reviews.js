@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const guestMiddleware = require("../../middleware/guest");
 const auth = require("../../middleware/auth");
-const {Hotel} = require("../../models/hotel");
 const validateObjectId = require("../../middleware/validateObjectId");
+const {Hotel} = require("../../models/hotel");
 const {Review} = require("../../models/review");
 const {Guest} = require("../../models/guest");
 
@@ -25,9 +25,11 @@ router.post("/:id", [auth, guestMiddleware, validateObjectId], async (req, res) 
   const {previousBookedHotelDetails} = await Guest.findById(req.user._id);
   let eligibleToReview = previousBookedHotelDetails.includes(hotelId);
   if (!eligibleToReview) return res.status(400).send("You are not elligible to review");
-
+  
+  let reviewedOn=new Date().toLocaleString('en-us',{ day:'numeric',month:'long',year:'numeric'})
   req.body.guestId = req.user._id;
   req.body.hotelId = hotelId;
+  req.body.reviewedOn= reviewedOn;
   const review = new Review(req.body);
   await review.save();
   await Hotel.findByIdAndUpdate(hotelId, {$push: {reviewIds: review._id}});

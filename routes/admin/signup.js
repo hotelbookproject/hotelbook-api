@@ -23,8 +23,8 @@ router.post("/", [validate(validateAdmin)], async (req, res) => {
 
   const admin = new Admin(adminData);
   await admin.save();
-
-  res.send("Signup Successful");
+  const token=admin.generateAuthToken()
+  res.send(token);
 });
 
 module.exports = router;

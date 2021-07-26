@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 module.exports = function () {
   mongoose
-    .connect("mongodb://localhost/hotelbooktest", {
+    .connect("mongodb://localhost/hotelbook", {
       useUnifiedTopology: true,
       useNewUrlParser: true,
       useFindAndModify: false,
@@ -10,3 +10,4 @@ module.exports = function () {
     .then(() => console.log("connected to database"))
     .catch(err => console.log(err));
 };
+ 

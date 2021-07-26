@@ -4,14 +4,90 @@ const _ = require("lodash");
 const mongoose = require("mongoose");
 const guestMiddleware = require("../../middleware/guest");
 const auth = require("../../middleware/auth");
+const getDays = require("../../utils/getDays");
 const {Hotel} = require("../../models/hotel");
 const {Room} = require("../../models/room");
 const {Booking} = require("../../models/booking");
 const {Guest} = require("../../models/guest");
-const getDays = require("../../utils/getDays");
-const {retrieveMainPhoto} = require("../../utils/retrieveImages");
+const {retrieveMainPhoto, retrieveOtherPhotos} = require("../../utils/retrieveImages");
+const validateObjectId = require("../../middleware/validateObjectId");
 
 router.get("/", async (req, res) => {
+  let {placeForSearch, selectedDayRange, pageNumber, pageSize, filterOptions} = req.query;
+  pageNumber = Number(pageNumber);
+  pageSize = Number(pageSize);
+  placeForSearch = placeForSearch.toLowerCase();
+
+  let hotelFacilities = [
+    "Free Wifi",
+    "Garden",
+    "Water park",
+    "Spa and wellness centre",
+    "Terrace",
+    "Fitness centre",
+    "Restaurant",
+    "Room service",
+    "Bar",
+    "Hot tub/jacuzzi",
+    "Swimming pool",
+    "AC",
+  ];
+
+  let otherFacilities = [
+    "parking",
+    "extraBed",
+    "breakfast",
+    "accomodateChildren",
+    "allowPets",
+    "provideDormitoryForDriver",
+  ];
+
+  let roomFacilities = ["Air Conditioning", "Smart TV", "Television"];
+  let starRating = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"];
+  let rating = ["Above 4/5", "Above 3/5", "Above 2/5"];
+
+  let filteredHotelFacilities = _.intersection(hotelFacilities, filterOptions);
+  let filteredRoomFacilities = _.intersection(roomFacilities, filterOptions);
+  let filteredStarRating = _.intersection(starRating, filterOptions);
+  let filteredRating = _.intersection(rating, filterOptions);
+
+  if (filteredStarRating.length > 0) {
+    let temp = [];
+    for (let element of filteredStarRating) temp.push(Number(_.head(element)));
+    filteredStarRating = temp;
+  } else {
+    filteredStarRating = [0, 1, 2, 3, 4, 5];
+  }
+
+  if (filteredRating.length > 0)
+    filteredRating = Number(_.nth(_.last(_.sortBy(filteredRating)), 6));
+  else filteredRating = 0;
+
+  let filteredFields = _.pullAll(
+    filterOptions,
+    _.flattenDeep([hotelFacilities, roomFacilities, starRating, rating])
+  );
+
+  if (filteredFields) {
+    filteredFields = _.intersection(
+      otherFacilities,
+      filteredFields.map(item => _.camelCase(item))
+    );
+  }
+
+  let extraBed = filteredFields?.includes("extraBed") ? true : [true, false];
+  let allowPets = filteredFields?.includes("allowPets") ? true : [true, false];
+  let parking = filteredFields?.includes("parking")
+    ? ["Yes, Free", "Yes, Paid"]
+    : ["No", "Yes, Free", "Yes, Paid"];
+  let breakfast = filteredFields?.includes("breakfast")
+    ? ["Yes, Free", "Yes, Paid"]
+    : ["No", "Yes, Free", "Yes, Paid"];
+  let accomodateChildren = filteredFields?.includes("accomodateChildren") ? true : [true, false];
+  let provideDormitoryForDriver = filteredFields?.includes("provideDormitoryForDriver")
+    ? true
+    : [true, false];
+
   let selectedProperties = {
     hotelName: 1,
     reviewScore: 1,
@@ -19,46 +95,141 @@ router.get("/", async (req, res) => {
     mainPhoto: 1,
     city: 1,
   };
-  
-  let {placeForSearch, selectedDayRange, pageNumber, pageSize} = req.query;
-  pageNumber=Number(pageNumber)
-  pageSize=Number(pageSize)
 
   let allTheDays;
+  selectedDayRange=JSON.parse(selectedDayRange)
+
   if (selectedDayRange.from) {
     allTheDays = getDays(selectedDayRange);
   } else {
-    let hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()})
+    function getQuery() { 
+      let hotelsQuery = Hotel.find({placeForSearch})
+        .where("provideDormitoryForDriver")
+        .in(provideDormitoryForDriver)
+        .where("accomodateChildren")
+        .in(accomodateChildren)
+        .where("starRating")
+        .in(filteredStarRating)
+        .where("reviewScore")
+        .gte(filteredRating)
+        .where("breakfast")
+        .in(breakfast)
+        .where("allowPets")
+        .in(allowPets)
+        .where("extraBed")
+        .in(extraBed)
+        .where("parking")
+        .in(parking);
+
+      if (filteredHotelFacilities.length > 0)
+        return hotelsQuery
+          .where("facilities")
+          .all(filteredHotelFacilities)
+          .in(filteredHotelFacilities);
+
+      return hotelsQuery;
+    }
+
+    let hotelsQuery = getQuery();
+
+    const roomIds = await hotelsQuery.distinct("hotelRooms");
+
+    let roomsQuery = Room.find().where("_id").in(roomIds)
+    if (filteredRoomFacilities.length > 0) {
+      roomsQuery = roomsQuery
+        .where("facilities")
+        .all(filteredRoomFacilities)
+        .in(filteredRoomFacilities);
+    }
+
+    const hotelIds = await roomsQuery.distinct("hotelId");
+
+    hotelsQuery = getQuery();
+    let hotels = await Hotel.find()
+      .where("_id")
+      .in(hotelIds)
       .select(selectedProperties)
       .skip(pageNumber * pageSize)
       .limit(pageSize);
 
-    let hotelsCount = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()})
-      .select(selectedProperties)
-      .countDocuments();
+    let hotelsCount = await Hotel.find().where("_id").in(hotelIds).countDocuments();
 
     hotels = await retrieveMainPhoto(hotels);
     hotels = {hotelsCount, hotels};
     return res.send(hotels);
   }
 
-  const hotels = await Hotel.find({placeForSearch: placeForSearch.toLowerCase()}).select({
-    hotelRooms: 1,
-  });
 
-  const roomIds = _.flattenDeep(_.map(hotels, "hotelRooms"));
+//? Search with Date
 
-  const rooms = await Room.find({_id: {$in: roomIds}, bookingFullDates: {$nin: allTheDays}}).select(
-    {hotelId: 1, _id: 0, basePricePerNight: 1}
-  );
+  let roomIds = await Hotel.find({placeForSearch}).distinct("hotelRooms")
 
-  let hotelIds = _.uniq(_.map(rooms, "hotelId"));
+  let hotelIds = await Room.find()
+    .where("_id")
+    .in(roomIds)
+    .where("bookingFullDates")
+    .nin(allTheDays)
+    .distinct("hotelId")
 
-  let hotelDetails = await Hotel.find({_id: {$in: hotelIds}}).select(selectedProperties);
+    roomIds=await Hotel.find().where("_id").in(hotelIds).distinct("hotelRooms")
 
-  for (hotel of hotelDetails) hotel.startingRatePerDay *= allTheDays.length;
+    let roomsQuery = Room.find().where("_id").in(roomIds)
 
-  res.send(hotelDetails);
+    if (filteredRoomFacilities.length > 0) {
+      roomsQuery = roomsQuery
+        .where("facilities")
+        .all(filteredRoomFacilities)
+        .in(filteredRoomFacilities);
+    }
+
+  hotelIds = await roomsQuery.find().distinct("hotelId")
+
+  function getQuery() {
+    let hotelsQuery = Hotel.find()
+      .where("_id")
+      .in(hotelIds)
+      .where("provideDormitoryForDriver")
+      .in(provideDormitoryForDriver)
+      .where("accomodateChildren")
+      .in(accomodateChildren)
+      .where("starRating")
+      .in(filteredStarRating)
+      .where("reviewScore")
+      .gte(filteredRating)
+      .where("breakfast")
+      .in(breakfast)
+      .where("allowPets")
+      .in(allowPets)
+      .where("extraBed")
+      .in(extraBed)
+      .where("parking")
+      .in(parking);
+
+    if (filteredHotelFacilities.length > 0)
+      return hotelsQuery
+        .where("facilities")
+        .all(filteredHotelFacilities)
+        .in(filteredHotelFacilities);
+
+    return hotelsQuery;
+  }
+
+  let hotelsQuery = getQuery();
+
+  let hotels = await hotelsQuery
+    .select(selectedProperties)
+    .skip(pageNumber * pageSize)
+    .limit(pageSize);
+
+  hotelsQuery = getQuery();
+
+  let hotelsCount = await hotelsQuery.countDocuments();
+
+  for (hotel of hotels) hotel.startingRatePerDay *= allTheDays.length;
+
+  hotels = await retrieveMainPhoto(hotels);
+
+  res.send({hotels, hotelsCount});
 });
 
 //? API get request roomData for getting rooms
@@ -75,6 +246,16 @@ router.get("/", async (req, res) => {
 //   "year":2021
 // }}}
 // }
+
+
+router.get("/:id", [validateObjectId], async (req, res) => {
+  console.log("abc"); 
+  let hotel = [await Hotel.findById(req.params.id)];
+  if (!hotel) return res.status(404).send("hotel with given id not found");
+  hotel = await retrieveMainPhoto(hotel);
+  hotel = await retrieveOtherPhotos(hotel);
+  res.send(hotel);
+});
 
 router.post("/", [auth, guestMiddleware], async (req, res) => {
   const {roomDetails, selectedDayRange} = req.body;
