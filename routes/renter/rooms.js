@@ -13,7 +13,6 @@ const {retrieveMainPhoto, retrieveOtherPhotos} = require("../../utils/retrieveIm
 const {Hotel} = require("../../models/hotel");
 
 router.get("/", [auth, renter], async (req, res) => {
-  // console.log(req,"re")
   if (!mongoose.Types.ObjectId.isValid(req.query.hotelId))
     return res.status(404).send("Invalid Id");
 
@@ -34,7 +33,6 @@ router.get("/", [auth, renter], async (req, res) => {
     }),
   ];
 
-  // return console.log(rooms,"rooms")
 
   let finalRoomsData = [];
   for (let room of rooms) {
@@ -45,20 +43,18 @@ router.get("/", [auth, renter], async (req, res) => {
 });
 
 router.get("/:id", [auth, renter, validateObjectId], async (req, res) => {
-  console.log(req.params.id);
   let room = [await Room.findById(req.params.id)];
-  // console.log(room,"rm")
-  if (!room) return res.status(404).send("room with given id not found");
+  if (!room[0]) return res.status(404).send("room with given id not found");
   room = await retrieveMainPhoto(room);
   room = await retrieveOtherPhotos(room);
-  // console.log(room[0].roomType)
   res.send(room);
 });
 
 router.post("/", [auth, renter, validate(validateRoom)], async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.body.hotelId))
+  let hotelId=req.body.hotelId
+  if (!mongoose.Types.ObjectId.isValid(hotelId))
     return res.status(400).send({property: "toast", msg: "Invalid hotelId"});
-  const hotel = await Hotel.findById(req.body.hotelId);
+  const hotel = await Hotel.findById(hotelId);
   if (!hotel) return res.status(404).send("hotel with id not found");
 
   createFolder(req.user.username);
@@ -68,11 +64,11 @@ router.post("/", [auth, renter, validate(validateRoom)], async (req, res) => {
   await room.save();
 
   let operation;
-  if (hotel.startingRatePerDay < req.body.basePricePerNight)
+  if (hotel.startingRatePerDay > req.body.basePricePerNight)
     operation = {$push: {hotelRooms: room._id}};
-  else operation = {$push: {hotelRooms: room}, startingRatePerDay: req.body.basePricePerNight};
+  else operation = {$push: {hotelRooms: room._id}, startingRatePerDay: req.body.basePricePerNight};
 
-  await Hotel.findByIdAndUpdate(room.hotelId, operation);
+  await Hotel.findByIdAndUpdate(hotelId, operation);
   res.send(room);
 });
 

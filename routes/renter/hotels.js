@@ -42,7 +42,7 @@ router.get("/", [auth, renterMiddleware], async (req, res) => {
 router.get("/:id", [auth, renterMiddleware, validateObjectId], async (req, res) => {
   console.log("abc");
   let hotel = [await Hotel.findById(req.params.id)];
-  if (!hotel) return res.status(404).send("hotel with given id not found");
+  if (!hotel[0]) return res.status(404).send("hotel with given id not found");
   hotel = await retrieveMainPhoto(hotel);
   hotel = await retrieveOtherPhotos(hotel);
   res.send(hotel);
