@@ -91,9 +91,9 @@ function validateGuest(data) {
 
 function validateGuestPassword(data) {
   const schema = Yup.object({
-    oldpassword: Yup.string(),
-    password: Yup.string().required("Password is required").min(6).max(256).label("Password"),
-    confirmPassword: Yup.string().oneOf([Yup.ref("password"), null], "Passwords must match"),
+    oldPassword: Yup.string(),
+    newPassword: Yup.string().required("Password is required").min(6).max(256).label("Password"),
+    confirmPassword: Yup.string().oneOf([Yup.ref("newPassword"), null], "Passwords must match"),
   });
 
   return schema.validate(data);
