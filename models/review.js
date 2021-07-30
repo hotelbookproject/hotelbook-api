@@ -29,8 +29,8 @@ const Review = mongoose.model("review", reviewSchema);
 
 function validateReview(data) {
     const schema = Yup.object().shape({
-        review: Yup.string().min(2).max(10000).required(),
-        rating:Yup.string().required().oneOf(["1","2","3","4","5"])
+        review: Yup.string().min(2).max(100000).required(),
+        rating:Yup.number().required().oneOf([1,2,3,4,5])
     });
     return schema.validate(data);
 }

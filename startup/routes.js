@@ -10,6 +10,7 @@ const guestSignin = require("../routes/guest/signin");
 const guestSignup = require("../routes/guest/signup");
 const guestForgot = require("../routes/guest/forgot");
 const bookings = require("../routes/guest/bookings");
+const getrooms = require("../routes/guest/rooms");
 const reviews = require("../routes/guest/reviews");
 const guestChangePassword = require("../routes/guest/changePassword");
 
@@ -32,6 +33,7 @@ module.exports = function (app) {
   app.use("/api/guest/signup", guestSignup);
   app.use("/api/guest/forgot", guestForgot);
   app.use("/api/guest/book", bookings);
+  app.use("/api/guest/room", getrooms);
   app.use("/api/guest/review", reviews);
   app.use("/api/guest/changePassword", guestChangePassword);
 
