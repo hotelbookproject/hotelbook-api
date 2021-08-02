@@ -155,7 +155,7 @@ router.get("/", async (req, res) => {
     let hotelsCount = await Hotel.find().where("_id").in(hotelIds).countDocuments();
 
     hotels = await retrieveMainPhoto(hotels);
-    hotels = {hotelsCount, hotels};
+    hotels = {hotelsCount, hotels,numberOfDays:0};
     return res.send(hotels);
   }
 
@@ -229,7 +229,7 @@ router.get("/", async (req, res) => {
 
   hotels = await retrieveMainPhoto(hotels);
 
-  res.send({hotels, hotelsCount});
+  res.send({hotels, hotelsCount,numberOfDays:allTheDays.length});
 });
 
 //? API get request roomData for getting rooms
@@ -262,7 +262,7 @@ router.post("/", [auth, guestMiddleware], async (req, res) => {
   for (room of roomDetails) {
     if (!mongoose.Types.ObjectId.isValid(room.roomId)) return res.status(404).send("Invalid Id");
   }
-
+  console.log(selectedDayRange,"sdr")
   const allTheDays = getDays(selectedDayRange);
   const roomsDetails = {};
   let totalPrice = 0;
@@ -293,12 +293,12 @@ router.post("/", [auth, guestMiddleware], async (req, res) => {
           return res.status(400).send("Someone already booked, please refresh your page.");
       }
     }
-
+    
     roomDB.markModified("numberOfBookingsByDate", "bookingFullDates");
     await roomDB.save();
     console.log(roomDB);
   }
-
+  console.log(allTheDays,"ad")
   const roomData = {};
   roomData["guestId"] = req.user._id;
   roomData["startingDayOfStay"] = allTheDays[0];

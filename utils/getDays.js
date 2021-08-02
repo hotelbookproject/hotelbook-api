@@ -2,7 +2,8 @@ const days = require("days-in-a-row");
 const JSJoda = require("js-joda");
 
 module.exports = selectedDate => {
-  const {from, to} = selectedDate;
+  let {from, to} = selectedDate;
+  if(!to) to={...from}
   if (from.day < 10) from.day = "0" + from.day;
   if (from.month < 10) from.month = "0" + from.month;
   if (to.day < 10) to.day = "0" + to.day;
