@@ -12,6 +12,15 @@ async function retrieveMainPhoto(hotel) {
       return hotel
 }
 
+async function retrieveMainPhotobyPath(imagePath) {
+        const imageType = path.extname(imagePath).slice(1);
+        
+        const {error, response} = await convertImageToBase64(imagePath);
+        if (error) console.log("something went wrong");
+        if (response) data = `data:image/${imageType};base64,` + response;
+      return data
+}
+
 async function retrieveOtherPhotos(hotel) { 
         let base64Photos=[]
         for(photo of hotel[0].photos){
@@ -27,3 +36,4 @@ async function retrieveOtherPhotos(hotel) {
 
 exports.retrieveMainPhoto=retrieveMainPhoto
 exports.retrieveOtherPhotos=retrieveOtherPhotos
+exports.retrieveMainPhotobyPath=retrieveMainPhotobyPath

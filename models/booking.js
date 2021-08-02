@@ -5,6 +5,10 @@ const bookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
+  hotelId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
   startingDayOfStay: {
     type: String,
     required: true,
@@ -21,12 +25,13 @@ const bookingSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
-  totalPrice: {
-    type: Number,
-    min: 10,
-    max: 1000000000,
-    required: true,
-  },
+  bookedOn:{
+    type:String,
+    required:true
+},isStayCompleted:{
+  type:Boolean,
+  default:false
+}
 });
 
 const Booking = mongoose.model("booking", bookingSchema);
