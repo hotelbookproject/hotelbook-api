@@ -63,12 +63,18 @@ router.post("/", [auth, renter, validate(validateRoom)], async (req, res) => {
   const room = new Room(req.body);
   await room.save();
 
-  let operation;
-  if (hotel.startingRatePerDay > req.body.basePricePerNight)
-    operation = {$push: {hotelRooms: room._id}};
-  else operation = {$push: {hotelRooms: room._id}, startingRatePerDay: req.body.basePricePerNight};
+  const rooms = await Room.find({
+    _id: {
+      $in: hotel.hotelRooms,
+    },
+  }).select({hotelId: 1, _id: 0, basePricePerNight: 1});
 
-  await Hotel.findByIdAndUpdate(hotelId, operation);
+  const startingRatePerDay = _.min(_.flattenDeep(_.map(rooms, "basePricePerNight")));
+  let startingPrices=[]
+  startingPrices.push(startingRatePerDay)
+  startingPrices.push(req.body.basePricePerNight)
+  
+  await Hotel.findByIdAndUpdate(hotelId, {$push: {hotelRooms: room._id}, startingRatePerDay: _.min(startingPrices)});
   res.send(room);
 });
 
@@ -87,12 +93,17 @@ router.put("/:id", [auth, renter, validateObjectId, validate(validateRoom)], asy
   }).select({hotelId: 1, _id: 0, basePricePerNight: 1});
 
   const startingRatePerDay = _.min(_.flattenDeep(_.map(rooms, "basePricePerNight")));
-
-  if (
-    !(hotel.startingRatePerDay < startingRatePerDay) ||
-    !(hotel.startingRatePerDay > startingRatePerDay)
-  )
-    await Hotel.findByIdAndUpdate(hotelId, {startingRatePerDay});
+  console.log(startingRatePerDay,"srpd")
+  let startingPrices=[]
+  startingPrices.push(startingRatePerDay)
+  startingPrices.push(hotel.startingRatePerDay)
+  console.log(startingPrices,"sp")
+  // if (
+  //   !(hotel.startingRatePerDay < startingRatePerDay) ||
+  //   !(hotel.startingRatePerDay > startingRatePerDay)
+  // )
+  console.log(_.min(startingPrices),"mn")
+    await Hotel.findByIdAndUpdate(hotelId, {startingRatePerDay:_.min(startingPrices)});
   res.send(room);
 });
 

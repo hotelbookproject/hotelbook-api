@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const _ = require("lodash");
 const mongoose = require("mongoose");
-const guestMiddleware = require("../../middleware/guest");
+const renterMiddleware = require("../../middleware/renter");
 const auth = require("../../middleware/auth");
 const getDays = require("../../utils/getDays");
 const {Hotel} = require("../../models/hotel");
@@ -12,13 +12,14 @@ const {Guest} = require("../../models/guest");
 const {retrieveMainPhotobyPath, retrieveMainPhoto} = require("../../utils/retrieveImages");
 const validateObjectId = require("../../middleware/validateObjectId");
 
-router.get("/", [auth, guestMiddleware], async (req, res) => {
+router.get("/", [auth, renterMiddleware], async (req, res) => {
   let finalData = [];
-  let bookings
-  console.log(req.query)
-  if(req.query.isStayCompleted==="true"){
+  let bookings;
+  console.log(req.query);
+
+  if (req.query.isStayCompleted === "true") {
     bookings = await Booking.find({guestId: req.user._id, isStayCompleted: true}).lean();
-  }else{
+  } else {
     bookings = await Booking.find({guestId: req.user._id, isStayCompleted: false}).lean();
   }
 
@@ -61,15 +62,15 @@ router.get("/", [auth, guestMiddleware], async (req, res) => {
       sendData();
     }
   });
-  
+
   function sendData() {
-    console.log("sending")
+    console.log("sending");
     res.send(finalData);
   }
 });
 
-router.get("/guest",[auth, guestMiddleware], async (req, res)=>{
-  const {roomIds}=req.query;
+router.get("/guest", [auth, guestMiddleware], async (req, res) => {
+  const {roomIds} = req.query;
   let finalRoomsData = [];
   let rooms = [await Room.find().where("_id").in(roomIds).lean()];
 
@@ -78,47 +79,6 @@ router.get("/guest",[auth, guestMiddleware], async (req, res)=>{
   }
 
   return res.send(_.flattenDeep(finalRoomsData));
-})
+});
 
 module.exports = router;
-
-
-// const [hotels,setHotels]=useState()
-//   const [isLoading,setIsLoading]=useState(true)
-//   const [hotelsCount,setHotelsCount]=useState()
-//   const [didPaginate,setDidPaginate]=useState()
-
-//   let pageSize=9
-
-//   async function getHotels() {
-//     let values={pageNumber:0,pageSize}
-//     const {data}=await getRenterHotels(values)
-//     let {hotelsCount,hotels}=data
-//     console.log(hotelsCount,"count")
-//     setHotels(hotels)
-//     setHotelsCount(hotelsCount)
-//     setIsLoading(false)
-//   }
-
-//   useEffect(() => {
-//     getHotels() 
-//   },[]);
-
-//   if(isLoading){
-//     return (
-//       <center>
-//           <ReactLoading
-//             type={"bars"}
-//             color={"#F39636"}
-//             height={"10%"}
-//             width={"50%"}
-//           />
-//         </center>
-//     )
-//   }
-
-//   return (
-//     <div>
-//       <SearchResultComponent user="renter" hotels={hotels} />
-//     </div> 
-//   );

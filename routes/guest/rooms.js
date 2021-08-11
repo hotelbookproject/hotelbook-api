@@ -14,6 +14,7 @@ const validateObjectId = require("../../middleware/validateObjectId");
 
 router.get("/", async (req, res) => {
   let {roomIds, selectedDayRange} = req.query;
+  console.log(req.query)
   let rooms = [await Room.find().where("_id").in(roomIds)];
   // console.log(rooms,"rms")
   let finalRoomsData = [];
@@ -73,4 +74,4 @@ router.get("/:id", async (req, res) => {
   res.send(room);
 });
 
-module.exports = router;
+module.exports = router; 

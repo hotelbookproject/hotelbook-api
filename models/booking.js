@@ -31,6 +31,10 @@ const bookingSchema = new mongoose.Schema({
 },isStayCompleted:{
   type:Boolean,
   default:false
+},
+reviewId:{
+  type:mongoose.Schema.Types.ObjectId,
+  default:null
 }
 });
 
